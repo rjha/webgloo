@@ -5,6 +5,8 @@ namespace com\indigloo\auth {
     use \com\indigloo\Util as Util;
     use \com\indigloo\mysql as MySQL;
     use \com\indigloo\auth\view\User as UserVO ;
+    use \com\indigloo\exception\DBException;
+    
     
     /**
      *
@@ -101,7 +103,7 @@ namespace com\indigloo\auth {
                 }
             }
             
-            return array('code' => $code);
+            return $code;
         }
         
         function isStaff() {
@@ -164,12 +166,13 @@ namespace com\indigloo\auth {
         static function create($tableName,$firstName,$lastName,$userName,$email,$password,$loginId) {
             
             if(empty($tableName)) {
-                trigger_error("User Table name is not supplied",E_USER_ERROR);
+                throw new \com\indigloo\exception\DBException("User Table name is not supplied",E_USER_ERROR);
                 exit(1);
             }
             
             Util::isEmpty('Email',$email);
             Util::isEmpty('User Name',$userName);
+            $dbCode = 0 ;
             
             $mysqli = MySQL\Connection::getInstance()->getHandle();
 
@@ -214,7 +217,7 @@ namespace com\indigloo\auth {
                 $dbCode = MySQL\Error::handle(self::MODULE_NAME, $mysqli);
             }
 
-            return array('code' => $dbCode);
+            return $dbCode;
         }
         
         static function changePassword($tableName,$userId,$email,$password) {
@@ -251,10 +254,10 @@ namespace com\indigloo\auth {
                 $stmt->close();
     
             } else {
-                $dbCode = Gloo_MySQL_Error::handle(self::MODULE_NAME, $mysqli);
+                $dbCode = MySQL\Error::handle(self::MODULE_NAME, $mysqli);
             }
 
-            return array('code' => $dbCode);
+            return $dbCode;
         }
         
     }

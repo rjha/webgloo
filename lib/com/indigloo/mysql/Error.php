@@ -23,7 +23,7 @@ namespace com\indigloo\mysql {
             }
 
             $map = array( 1062 => MySQL\Connection::DUPLICATE_KEY);
-            $message = sprintf(" DB error code : %d  message : %s \n",$errorNo,$dbHandle->error);
+            $message = sprintf("DB error code : %d  message : %s \n",$errorNo,$dbHandle->error);
             
             // errors returned to upper layers
             if (array_key_exists($errorNo, $map)) {

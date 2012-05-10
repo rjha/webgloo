@@ -1,7 +1,10 @@
 <?php
+
 namespace com\indigloo\core {
     
     use \com\indigloo\Configuration as Config;
+    use \com\indigloo\mysql\PDOWrapper;
+    use \com\indigloo\Logger as Logger;
 
     /*
      * custom session handler to store PHP session data into mysql DB
@@ -10,87 +13,71 @@ namespace com\indigloo\core {
      */
     class MySQLSession {
 
-        private $mysqli ;
+        private $dbh ;
 
         function __construct() {
 
         }
         
         function open($path,$name) {
-            $this->mysqli = new \mysqli(Config::getInstance()->get_value("mysql.host"),
-                            Config::getInstance()->get_value("mysql.user"),
-                            Config::getInstance()->get_value("mysql.password"),
-                            Config::getInstance()->get_value("mysql.database")); 
-
-            if (mysqli_connect_errno ()) {
-                trigger_error(mysqli_connect_error(), E_USER_ERROR);
-                exit(1);
-            }
-
+            $this->dbh = PDOWrapper::getHandle();
             //remove old sessions
             $this->gc(1440);
-           
             return TRUE ;
         }
 
         function close() {
-            $this->mysqli->close();
-            $this->mysqli = null;
+            $this->dbh = null;
             return TRUE ;
         }
 
         function read($sessionId) {
             //start Tx
-            $this->mysqli->query("START TRANSACTION"); 
-            $sql = " select data from sc_php_session where session_id = '%s'  for update ";
-            $sessionId = $this->mysqli->real_escape_string($sessionId);
-            $sql = sprintf($sql,$sessionId);
-
-            $result = $this->mysqli->query($sql);
+            $this->dbh->beginTransaction(); 
+            $sql = " select data from sc_php_session where session_id = :session_id  for update ";
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->bindParam(":session_id",$sessionId, \PDO::PARAM_STR);
+            $stmt->execute();
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             $data = '' ;
+            if($result) {
+                $data = $result['data'];
+            }
 
-            if ($result) {
-                $record = $result->fetch_array(MYSQLI_ASSOC);
-                $data = $record['data'];
-            } 
-
-            $result->free();
             return $data ;
-
         }
 
         function write($sessionId,$data) {
 
-            $sessionId = $this->mysqli->real_escape_string($sessionId);
-            $data = $this->mysqli->real_escape_string($data);
+            $sql = " select count(session_id) as total from sc_php_session where session_id = :session_id" ;
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->bindParam(":session_id",$sessionId, \PDO::PARAM_STR);
+            $stmt->execute();
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $total = $result['total'];
 
-            $sql = "REPLACE INTO sc_php_session(session_id,data,updated_on) VALUES('%s', '%s', now())" ;
-            $sql = sprintf($sql,$sessionId, $data);
-
-            $stmt = $this->mysqli->prepare($sql);
-            if ($stmt) {
-                $stmt->execute();
-                $stmt->close();
+            if($total > 0) {
+                //existing session
+                $sql2 = " update sc_php_session set data = :data, updated_on = now() where session_id = :session_id" ;
             } else {
-                trigger_error($this->mysqli->error, E_USER_ERROR);
+                $sql2 = "insert INTO sc_php_session(session_id,data,updated_on) VALUES(:session_id, :data, now())" ;
             }
-            //end Tx
-            $this->mysqli->query("COMMIT"); 
+            
+            $stmt2 = $this->dbh->prepare($sql2);
+            $stmt2->bindParam(":session_id",$sessionId, \PDO::PARAM_STR);
+            $stmt2->bindParam(":data",$data, \PDO::PARAM_STR);
+            $stmt2->execute();
 
+            //end Tx
+            $this->dbh->commit(); 
         }
 
         function destroy($sessionId) {
-            $sessionId = $this->mysqli->real_escape_string($sessionId);
-            $sql = "DELETE FROM sc_php_session WHERE session_id = '%s' ";
-            $sql = sprintf($sql,$sessionId);
+            $sql = "DELETE FROM sc_php_session WHERE session_id = :session_id ";
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->bindParam(":session_id",$sessionId, \PDO::PARAM_STR);
+            $stmt->execute();
 
-            $stmt = $this->mysqli->prepare($sql);
-            if ($stmt) {
-                $stmt->execute();
-                $stmt->close();
-            } else {
-                trigger_error($this->mysqli->error, E_USER_ERROR);
-            }
         }
 
         /* 
@@ -99,16 +86,10 @@ namespace com\indigloo\core {
          *
          */
         function gc($age) {
-            $sql = "DELETE FROM sc_php_session WHERE updated_on < (now() - INTERVAL %d SECOND) ";
-            $sql = sprintf($sql,$age);
-            $stmt = $this->mysqli->prepare($sql);
-            if ($stmt) {
-                $stmt->execute();
-                $stmt->close();
-            } else {
-                trigger_error($this->mysqli->error, E_USER_ERROR);
-            }
-
+            $sql = "DELETE FROM sc_php_session WHERE updated_on < (now() - INTERVAL :age SECOND) ";
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->bindParam(":age",$age, \PDO::PARAM_INT);
+            $stmt->execute();
         }
 
     }
