@@ -1,5 +1,5 @@
 <?php
-namespace com\indigloo\sc\ui {
+namespace com\indigloo\ui {
     
     class Filter {
         const EQ = '=' ;

@@ -1,6 +1,6 @@
 <?php
 
-namespace com\indigloo\sc\mysql {
+namespace com\indigloo\mysql {
 
     use \com\indigloo\Util as Util;
 
