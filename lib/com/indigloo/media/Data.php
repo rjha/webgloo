@@ -15,6 +15,7 @@ namespace com\indigloo\media {
 		public $id ;
         public $store ;
         public $thumbnail ;
+        public $thumbnailName ;
 
         static function create($row) {
             $view = new \com\indigloo\media\Data();
@@ -29,6 +30,7 @@ namespace com\indigloo\media {
             $view->id = $row["id"];
             $view->store  = $row["store"];
             $view->thumbnail = $row["thumbnail"];
+            $view->thumbnailName = $row["thumbnail_name"];
 
             return $view ;
 

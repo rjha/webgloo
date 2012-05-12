@@ -281,6 +281,23 @@ namespace com\indigloo {
             return $text;
         }
 
+        static function getThumbnailName($name) {
+            //no name
+            if(self::tryEmpty($name)) {
+                $name = "no-name-t190.jpg";
+                return $name;
+            }
+
+            $pos = strrpos($name, '.');
+            if ($pos === false) {
+                //no extension in original name
+                return $name."-t190.jpg" ;
+            } else {
+                $part = substr($name,0,$pos);
+                return $part."-t190.jpg";
+            }
+        }
+
     }
 
 }

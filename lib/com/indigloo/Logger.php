@@ -131,16 +131,19 @@ namespace com\indigloo {
 
             foreach ($trace as $i=>$t) {
                 //class and type is not always available in trace
-                $class = isset($t['class']) ? $t['class'] : '@' ;
+                $class = isset($t['class']) ? $t['class'] : '#class#' ;
                 $type = isset($t['type']) ? $t['type'] : ' ' ;
+                $function = isset($t['function']) ? $t['function'] : '#function#' ;
+                $file = isset($t['file']) ? $t['file'] : '#file#' ;
+                $line = isset($t['line']) ? $t['line'] : '#line#' ;
 
                 $message = sprintf("#%d %s%s%s() called at %s:%d \n", 
                     $i,
                     $class, 
                     $type,
-                    $t['function'],
-                    $t['file'],
-                    $t['line']);
+                    $function,
+                    $file,
+                    $line);
 
                 fwrite($this->fhandle,$message);
                 

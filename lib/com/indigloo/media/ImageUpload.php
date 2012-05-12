@@ -9,7 +9,6 @@ namespace com\indigloo\media {
     
     class ImageUpload  {
 
-       
         private $pipe ;
         private $store ;
         private $mediaData ;
@@ -49,7 +48,6 @@ namespace com\indigloo\media {
             if(sizeof($this->errors) > 0 ){
                 //set errors and return 
                 return ;
-
             }
 
             //get meta data and actual file data 
@@ -71,9 +69,13 @@ namespace com\indigloo\media {
             $storeName = $this->store->persist($prefix,$this->mediaData->originalName,$sBlobData,$headers);
 
 
-            //set content type for thumbnails
+            //create a thumbnail 
+            //set correct headers
             $headers["Content-Type"] =  "image/jpeg";
-            $thumbnail = $this->store->persist($prefix,$this->mediaData->originalName,$tBlobData,$headers);
+            //change name to jpeg for thumbnail
+            //all thumbnails are image type jpeg
+            $tname = Util::getThumbnailName($this->mediaData->originalName);
+            $thumbnail = $this->store->persist($prefix,$tname,$tBlobData,$headers);
             
             if(is_null($storeName)) {
                 array_push($this->errors, "file storage failed");
@@ -82,6 +84,7 @@ namespace com\indigloo\media {
 
             $this->mediaData->storeName = $storeName;
             $this->mediaData->thumbnail = $thumbnail;
+            $this->mediaData->thumbnailName = $tname;
 
             if($this->isS3Store) {
                 $this->mediaData->store = 's3';
@@ -93,7 +96,8 @@ namespace com\indigloo\media {
             }
 
         }
-        
+
+               
         public function computeHW($sBlobData) {
             //compute height and width using GD2 functions
             // GD2 functions are in global namespace
