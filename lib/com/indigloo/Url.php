@@ -4,6 +4,9 @@ namespace com\indigloo {
 
     use com\indigloo\Util ;
 
+    /*
+     * @todo whether to urlencode every part or not 
+     */
     class Url {
 
         static function base () {
@@ -11,8 +14,13 @@ namespace com\indigloo {
                 
         }
             
-        //accept an array of param and values and add to
-        // this base URI
+        /*
+         * accept an array of param and values and add to
+         * this base URI.
+         * @param params should be urlencoded
+         * @return new URL
+         *
+         */
         static function addQueryParameters($url, $params,$ignore=NULL) {
             //existing params
             $q = self::getQueryParams($url);
@@ -31,6 +39,12 @@ namespace com\indigloo {
             return $newUrl;
         }
 
+        /*
+         * @imp: createUrl() will process the input as-it-is, without 
+         * any encoding. 
+         * @return new URL
+         * 
+         */
         static function createUrl($path, $params, $fragment=NULL) {
             $count = 0;
 
@@ -45,6 +59,11 @@ namespace com\indigloo {
             return $path;
         }
         
+        /*
+         * @imp : parse_url will urlencode parameters so the returned
+         * array has urlencoded elements 
+         * @return an array containing key value pairs.
+         */
         static function getQueryParams($url) {
             $query = \parse_url($url, PHP_URL_QUERY);
             $params = array();
@@ -64,6 +83,9 @@ namespace com\indigloo {
             return $params;
         }
 
+        /* 
+         * @return  raw _GET value that is not URL encoded 
+         */
 		static function tryQueryParam($name){
 			$value = NULL ;
 			if(array_key_exists($name,$_GET) && !empty($_GET[$name])){

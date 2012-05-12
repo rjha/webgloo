@@ -21,8 +21,6 @@ namespace com\indigloo\core {
         
         function open($path,$name) {
             $this->dbh = PDOWrapper::getHandle();
-            //remove old sessions
-            $this->gc(1440);
             return TRUE ;
         }
 
@@ -71,6 +69,11 @@ namespace com\indigloo\core {
             //end Tx
             $this->dbh->commit(); 
         }
+        
+        /*
+         * destroy is called via session_destroy
+         * However it is better to clear the stale sessions via a CRON script
+         */
 
         function destroy($sessionId) {
             $sql = "DELETE FROM sc_php_session WHERE session_id = :session_id ";
