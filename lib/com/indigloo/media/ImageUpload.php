@@ -58,14 +58,22 @@ namespace com\indigloo\media {
                 trigger_error('File processing returned Null Data', E_USER_ERROR);
             }
              
-            //do image specific processing here
+            // image upload is done 
+            // clean original file name of malformed utf-8 chars
+            $cleanName = Util::filterBadUtf8($this->mediaData->originalName);
+            if(empty($cleanName)) {
+                trigger_error("image name consists solely of malformed utf-8",E_USER_ERROR);
+            }
+
+            $this->mediaData->originalName = $cleanName;
+
+            //now do image specific processings
             $tBlobData = $this->computeHW($sBlobData);
 
             //caching headers
             $offset = 3600*24*365;
             $expiresOn = gmdate('D, d M Y H:i:s \G\M\T', time() + $offset);
             $headers = array('Expires' => $expiresOn, 'Cache-Control' => 'public, max-age=31536000');
-
             $storeName = $this->store->persist($prefix,$this->mediaData->originalName,$sBlobData,$headers);
 
 
@@ -96,7 +104,6 @@ namespace com\indigloo\media {
             }
 
         }
-
                
         public function computeHW($sBlobData) {
             //compute height and width using GD2 functions
@@ -132,7 +139,6 @@ namespace com\indigloo\media {
             return $tBlobData;   
         }
 
-        
     }
 }
 

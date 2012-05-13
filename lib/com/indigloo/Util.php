@@ -128,6 +128,21 @@ namespace com\indigloo {
             return ctype_alnum($input);
         }
 
+        static function filterBadUtf8($input){
+            $clean = iconv('UTF-8', 'UTF-8//IGNORE', $input);
+            return $clean;
+        }
+
+        static function filterAscii($input) {
+            //replace non-alpha with space
+            //@imp: ASCII specific filtering - will not work for utf-8
+            $input = preg_replace("/[^0-9a-zA-Z.]/i", ' ', $input);
+            
+            $input = self::squeeze($input);
+            $input = str_replace(" ","-",$input);
+            return $input ;
+        }
+
         /* 
          * used to check empty strings 
          * php empty() will return TRUE for "<spaces>" and false
