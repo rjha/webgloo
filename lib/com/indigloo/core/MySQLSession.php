@@ -8,7 +8,7 @@ namespace com\indigloo\core {
 
     /*
      * custom session handler to store PHP session data into mysql DB
-     * we use a -select for update- row leve lock 
+     * we use a -select for update- row level lock 
      *
      */
     class MySQLSession {
