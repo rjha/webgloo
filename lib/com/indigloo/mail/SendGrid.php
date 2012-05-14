@@ -7,7 +7,7 @@ namespace com\indigloo\mail {
     
     class SendGrid {
 
-        static function sendViaWeb($to,$from,$subject,$text,$html){
+        static function sendViaWeb($tos,$from,$subject,$text,$html){
             $login = Config::getInstance()->get_value("sendgrid.login");
             $password = Config::getInstance()->get_value("sendgrid.password");
 
@@ -15,7 +15,7 @@ namespace com\indigloo\mail {
             // webgloo libraries for this to work
             $sendgrid = new \SendGrid($login,$password);
             $mail = new \SendGrid\Mail();
-            $mail->addTo($to)->
+            $mail->setTos($tos)->
                 setFrom($from)->
                 setSubject($subject)->
                 setText($text)->
