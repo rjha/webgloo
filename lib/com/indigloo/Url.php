@@ -47,15 +47,16 @@ namespace com\indigloo {
          */
         static function createUrl($path, $params, $fragment=NULL) {
             $count = 0;
+            if(sizeof($params) > 0) {
+                foreach ($params as $name => $value) {
+                    $prefix = ($count == 0) ? '?' : '&';
+                    $path = $path . $prefix . $name . '=' . $value;
+                    $count++;
+                }
 
-            foreach ($params as $name => $value) {
-                $prefix = ($count == 0) ? '?' : '&';
-                $path = $path . $prefix . $name . '=' . $value;
-                $count++;
             }
-            if (!empty($fragment)) {
-                $path = $path.'#'.$fragment;
-            }
+
+            $path = empty($fragment) ? $path : $path.'#'.$fragment;
             return $path;
         }
         
@@ -73,10 +74,12 @@ namespace com\indigloo {
 				//PHP parse_url will return the part after ?
 				// for /q?arg1=v1&arg2=v2, we will get arg1=1v1&arg2=v2
                 $q = explode("&", $query);
-                foreach ($q as $token) {
+                foreach ($q as $kvp) {
                     //break on = to get name value pairs
-                    list($name, $value) = explode("=", $token);
-                    $params[$name] = $value;
+                    $tokens = explode("=",$kvp);
+                    if(isset($tokens[0]) && isset($tokens[1]) && !empty($tokens[0])) {
+                        $params[$tokens[0]] = $tokens[1];
+                    }
                 }
             }
 
