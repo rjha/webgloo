@@ -31,7 +31,6 @@ namespace com\indigloo\ui\form {
             // and values are output of form handler
             $this->fvalues = array();
             $this->ferrors = array();
-            
             $this->translate = $translate;
         }
 
@@ -50,8 +49,32 @@ namespace com\indigloo\ui\form {
                 //this key is not found in post
                 // this represents a coding issue, not a form error
                 // if the element is on form then you get a key
-                trigger_error(' Form handler POST does not have element :: ' . $name, E_USER_ERROR);
+                $message = sprintf('Form POST data does not contain element :: %s',$name);
+                trigger_error($message, E_USER_ERROR);
             }
+        }
+
+        /**
+         * @param $name - name of the form token
+         * @param sessionToken - value of form token stored in session 
+         *
+         */
+        function checkToken($name,$sessionToken) {
+            //missing security token!
+            if(!isset($this->post) || !isset($this->post[$name])) {
+                $message = "Security token not found! Please save your data and reload this page.";
+                array_push($this->ferrors,$message);
+                return ;
+            }
+
+            //stale security token!
+            $formToken = $this->post[$name];
+            if(strcmp($formToken,$sessionToken) != 0) {
+                $message = "Security token not found! Please save your data and reload this page.";
+                array_push($this->ferrors,$message);
+                return ;
+            }
+
         }
         
         function processElement($name, $displayName, $value, $rules) {
