@@ -126,7 +126,7 @@ namespace com\indigloo\ui\form {
                         array_push($this->ferrors, $displayName . " is not equal to :: " . $ruleCondition);
                     }
                     break;
-                case 'noprocess' :
+                case 'rawData' :
                     $this->fvalues[$name] = $value ;
                     break ;
                 default:
@@ -147,9 +147,8 @@ namespace com\indigloo\ui\form {
         }
 
         function getValues() {
-
             foreach ($this->post as $key => $value) {
-                if (!in_array($key, $this->fvalues)) {
+                if (!array_key_exists($key, $this->fvalues)) {
                     $this->fvalues[$key] = $this->getSecureHtml($value);
                 }
             }
