@@ -5,19 +5,28 @@ namespace com\indigloo {
     use com\indigloo\Util ;
 
     /*
-     * @todo whether to urlencode every part or not 
+     * Class to provide utility functions for URL creation and processing.
+     * @imp:
+     * when creating URL - user is supposed to provide URL encoded parameters.
+     * we never urlencode supplied parameters.
+     * when processing URL - we always urldecode the parameters. This is in line with 
+     * default PHP behavior.
+     *
      */
     class Url {
 
-        static function base () {
+        static function base() {
             return 'http://'.$_SERVER["HTTP_HOST"] ;
-                
         }
-            
+
+        static function current() {
+            return $_SERVER['REQUEST_URI'];
+        }
+
         /*
-         * accept an array of param and values and add to
-         * this base URI.
-         * @param params should be urlencoded
+         * accept an array of parameters and add to base $url
+         * @param params is key-value of parameters. 
+         * User should take care of encoding parameters if so desired.
          * @return new URL
          *
          */
@@ -41,7 +50,8 @@ namespace com\indigloo {
 
         /*
          * @imp: createUrl() will process the input as-it-is, without 
-         * any encoding. 
+         * any encoding. User should take care of encoding parameters. 
+         * @param  $params values should be URL encoded
          * @return new URL
          * 
          */
@@ -61,9 +71,10 @@ namespace com\indigloo {
         }
         
         /*
-         * @imp : parse_url will urlencode parameters so the returned
-         * array has urlencoded elements 
-         * @return an array containing key value pairs.
+         * @imp : we need to urldecode the  parameter values before returning 
+         * them to user. This is in line with default PHP $_GET behavior.
+         * @return an array of URL parameter key value pairs.
+         *
          */
         static function getQueryParams($url) {
             $query = \parse_url($url, PHP_URL_QUERY);
@@ -78,7 +89,7 @@ namespace com\indigloo {
                     //break on = to get name value pairs
                     $tokens = explode("=",$kvp);
                     if(isset($tokens[0]) && isset($tokens[1]) && !empty($tokens[0])) {
-                        $params[$tokens[0]] = $tokens[1];
+                        $params[$tokens[0]] = urldecode($tokens[1]);
                     }
                 }
             }
@@ -87,7 +98,11 @@ namespace com\indigloo {
         }
 
         /* 
-         * @return  raw _GET value that is not URL encoded 
+         * @return  value of parameter $name from  _GET 
+         * @imp: As per the manual $_GET auto urldecodes the values 
+         *
+         * @return urldecode value of parameter $name or NULL 
+         *
          */
 		static function tryQueryParam($name){
 			$value = NULL ;
@@ -97,6 +112,13 @@ namespace com\indigloo {
 
 			return $value ;
 		}
+        
+        /*
+         * 
+         * @return urldecode value of parameter $name 
+         * @throws error when $name is not part of $_GET
+         *
+         */
 
 		static function getQueryParam($name){
 			$value = NULL ;
