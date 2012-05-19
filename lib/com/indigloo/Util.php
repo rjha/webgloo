@@ -133,7 +133,7 @@ namespace com\indigloo {
             return $clean;
         }
 
-        static function filterAscii($input) {
+        static function filterNonAscii($input) {
             //replace non-alpha with space
             //@imp: ASCII specific filtering - will not work for utf-8
             $input = preg_replace("/[^0-9a-zA-Z.]/i", ' ', $input);
