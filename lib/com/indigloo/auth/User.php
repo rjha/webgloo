@@ -220,7 +220,7 @@ namespace com\indigloo\auth {
             return $dbCode;
         }
         
-        static function changePassword($tableName,$userId,$email,$password) {
+        static function changePassword($tableName,$loginId,$email,$password) {
             
             if(empty($tableName)) {
                 trigger_error("User Table name is not supplied",E_USER_ERROR);
@@ -243,13 +243,13 @@ namespace com\indigloo\auth {
             // we store this digest in table
             $digest = sha1($message);
             
-            $sql = " update {table} set updated_on=now(), salt=?, password=? where email = ? and id = ?" ;
+            $sql = " update {table} set updated_on=now(), salt=?, password=? where email = ? and login_id = ?" ;
             $sql = str_replace("{table}", $tableName, $sql);
 
             $stmt = $mysqli->prepare($sql);
         
             if($stmt) {
-                $stmt->bind_param("sssi", $salt, $digest,$email,$userId);
+                $stmt->bind_param("sssi", $salt, $digest,$email,$loginId);
                 $stmt->execute();
                 $stmt->close();
     
