@@ -293,6 +293,8 @@ namespace com\indigloo {
             $key = Config::getInstance()->get_value("tmp.encrypt.key");
             $crypt = base64_decode($crypt);
             $text = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $crypt, MCRYPT_MODE_ECB);
+            //trim any extra padding
+            $text = trim($text);
             return $text;
         }
 
