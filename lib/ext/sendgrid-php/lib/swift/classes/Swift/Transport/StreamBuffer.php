@@ -258,7 +258,7 @@ class Swift_Transport_StreamBuffer
     $options = array();
     if (!empty($this->_params['sourceIp']))
     {
-    	$options['socket']['bindto']=$this->_params['sourceIp'].':0';
+        $options['socket']['bindto']=$this->_params['sourceIp'].':0';
     }
     $this->_stream = @stream_socket_client($host.':'.$this->_params['port'], $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, stream_context_create($options));
     if (false === $this->_stream)

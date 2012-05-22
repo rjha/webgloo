@@ -38,11 +38,11 @@ namespace com\indigloo\media {
         }
 
         public function process($abspath) {
-			
+            
             $this->mediaData->originalName = basename($abspath) ;
             $this->fileData = file_get_contents($abspath) ;
             $this->mediaData->mime = 'application/octet-stream' ;
-			$this->mediaData->size = strlen($this->fileData); ;
+            $this->mediaData->size = strlen($this->fileData); ;
 
             return ;
         }

@@ -41,8 +41,8 @@ namespace com\indigloo\auth {
        
         const MODULE_NAME = 'com\indigloo\auth\User';
 
-		const USER_TOKEN = "WEBGLOO_USER_TOKEN" ;
-		const USER_DATA = "WEBGLOO_USER_DATA" ;
+        const USER_TOKEN = "WEBGLOO_USER_TOKEN" ;
+        const USER_DATA = "WEBGLOO_USER_DATA" ;
         
         static function createView($row) {
             $user = new UserVO();
@@ -187,8 +187,8 @@ namespace com\indigloo\auth {
             $message = $password.$salt;
             $digest = sha1($message);
             
-			$sql = " insert into {table} (first_name, last_name, user_name,email,password, " ;
-			$sql .= " salt,created_on,is_staff,login_id) ";
+            $sql = " insert into {table} (first_name, last_name, user_name,email,password, " ;
+            $sql .= " salt,created_on,is_staff,login_id) ";
             $sql .= " values(?,?,?,?,?,?,now(),0,?) ";
             $sql = str_replace("{table}", $tableName,$sql);
             
@@ -204,8 +204,8 @@ namespace com\indigloo\auth {
                         $userName,
                         $email,
                         $digest,
-						$salt,
-						$loginId);
+                        $salt,
+                        $loginId);
 
                 $stmt->execute();
 

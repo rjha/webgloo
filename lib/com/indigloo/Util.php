@@ -234,28 +234,28 @@ namespace com\indigloo {
                 return self::foldXY($w2,$h2,$w0,$h0) ;
             }
         }
-		
-		static function tryArrayKey($arr,$name){
-			$value = NULL ;
-			if(array_key_exists($name,$arr) && !empty($arr[$name])){
-				$value = $arr[$name];
-			}
+        
+        static function tryArrayKey($arr,$name){
+            $value = NULL ;
+            if(array_key_exists($name,$arr) && !empty($arr[$name])){
+                $value = $arr[$name];
+            }
 
-			return $value ;
-		}
+            return $value ;
+        }
 
-		static function getArrayKey($arr,$name){
-			$value = NULL ;
-			if(array_key_exists($name,$arr) && !empty($arr[$name])){
-				$value = $arr[$name];
-			}
+        static function getArrayKey($arr,$name){
+            $value = NULL ;
+            if(array_key_exists($name,$arr) && !empty($arr[$name])){
+                $value = $arr[$name];
+            }
 
-			if(is_null($value)){
-				trigger_error("Required array key $name is missing",E_USER_ERROR);
-			}
+            if(is_null($value)){
+                trigger_error("Required array key $name is missing",E_USER_ERROR);
+            }
 
-			return $value ;
-		}
+            return $value ;
+        }
 
         /*
          * @param json string coming from database

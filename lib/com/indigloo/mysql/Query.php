@@ -4,7 +4,7 @@ namespace com\indigloo\mysql {
 
     use \com\indigloo\Util as Util;
 
-	class Query {
+    class Query {
         
         const SQL_WHERE = "where";
         const SQL_AND = "and";
@@ -70,6 +70,6 @@ namespace com\indigloo\mysql {
         function get() {
             return $this->query;
         }
-	}
+    }
 }
 ?>

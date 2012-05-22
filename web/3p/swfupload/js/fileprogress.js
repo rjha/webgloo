@@ -1,7 +1,7 @@
 /*
-	A simple class for displaying file information and progress
-	Note: This is a demonstration only and not part of SWFUpload.
-	Note: Some have had problems adapting this class in IE7. It may not be suitable for your application.
+    A simple class for displaying file information and progress
+    Note: This is a demonstration only and not part of SWFUpload.
+    Note: Some have had problems adapting this class in IE7. It may not be suitable for your application.
 */
 
 // Constructor
@@ -13,7 +13,7 @@ function FileProgress(file, targetID) {
 
     this.opacity = 100;
     this.height = 0;
-	
+    
 
     this.fileProgressWrapper = document.getElementById(this.fileProgressID);
     if (!this.fileProgressWrapper) {
@@ -72,10 +72,10 @@ FileProgress.prototype.reset = function () {
 
     this.fileProgressElement.childNodes[2].innerHTML = "&nbsp;";
     this.fileProgressElement.childNodes[2].className = "progressBarStatus";
-	
+    
     this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
     this.fileProgressElement.childNodes[3].style.width = "0%";
-	
+    
     this.appear();
 };
 
@@ -137,7 +137,7 @@ FileProgress.prototype.appear = function () {
         clearTimeout(this.getTimer());
         this.setTimer(null);
     }
-	
+    
     if (this.fileProgressWrapper.filters) {
         try {
             this.fileProgressWrapper.filters.item("DXImageTransform.Microsoft.Alpha").opacity = 100;
@@ -148,13 +148,13 @@ FileProgress.prototype.appear = function () {
     } else {
         this.fileProgressWrapper.style.opacity = 1;
     }
-		
+        
     this.fileProgressWrapper.style.height = "";
-	
+    
     this.height = this.fileProgressWrapper.offsetHeight;
     this.opacity = 100;
     this.fileProgressWrapper.style.display = "";
-	
+    
 };
 
 // Fades out and clips away the FileProgress box.
@@ -162,7 +162,7 @@ FileProgress.prototype.disappear = function () {
 
     var reduceOpacityBy = 15;
     var reduceHeightBy = 4;
-    var rate = 30;	// 15 fps
+    var rate = 30;  // 15 fps
 
     if (this.opacity > 0) {
         this.opacity -= reduceOpacityBy;

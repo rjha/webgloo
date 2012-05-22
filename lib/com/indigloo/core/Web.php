@@ -67,8 +67,8 @@ namespace com\indigloo\core {
                     Logger::getInstance()->dump($value);
                 }
             } else {
-				trigger_error("No web session found", E_USER_ERROR);
-			}
+                trigger_error("No web session found", E_USER_ERROR);
+            }
         }
 
         function find($key, $destroy=false) {

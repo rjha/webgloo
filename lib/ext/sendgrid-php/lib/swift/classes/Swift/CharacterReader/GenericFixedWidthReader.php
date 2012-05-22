@@ -26,7 +26,7 @@ class Swift_CharacterReader_GenericFixedWidthReader
    * @access private
    */
   private $_width;
-	
+    
   /**
    * Creates a new GenericFixedWidthReader using $width bytes per character.
    * @param int $width
@@ -47,13 +47,13 @@ class Swift_CharacterReader_GenericFixedWidthReader
    */
   public function getCharPositions($string, $startOffset, &$currentMap, &$ignoredChars)
   {
-  	$strlen = strlen($string);
-  	// % and / are CPU intensive, so, maybe find a better way
-  	$ignored = $strlen%$this->_width;
-  	$ignoredChars = substr($string, - $ignored);
-  	$currentMap = $this->_width;
-  	return ($strlen - $ignored)/$this->_width;
-  	
+    $strlen = strlen($string);
+    // % and / are CPU intensive, so, maybe find a better way
+    $ignored = $strlen%$this->_width;
+    $ignoredChars = substr($string, - $ignored);
+    $currentMap = $this->_width;
+    return ($strlen - $ignored)/$this->_width;
+    
   }
   
   /**
@@ -62,7 +62,7 @@ class Swift_CharacterReader_GenericFixedWidthReader
    */
   public function getMapType()
   {
-  	return self::MAP_TYPE_FIXED_LEN;
+    return self::MAP_TYPE_FIXED_LEN;
   }
 
   /**

@@ -24,7 +24,7 @@ namespace com\indigloo\ui {
             
             foreach($rows as $row) {
 
-				$flag = (!is_null($default) && ($row['code'] == $default))? 'selected' : '' ;
+                $flag = (!is_null($default) && ($row['code'] == $default))? 'selected' : '' ;
                 $str = str_replace(array("{code}","{display}","{flag}") ,
                                    array($row['code'], $row['display'],$flag) , $option);
                 $buffer = $buffer.$str ;

@@ -82,8 +82,8 @@ namespace com\indigloo {
             if (empty($query)) {
                 return $params;
             } else {
-				//PHP parse_url will return the part after ?
-				// for /q?arg1=v1&arg2=v2, we will get arg1=1v1&arg2=v2
+                //PHP parse_url will return the part after ?
+                // for /q?arg1=v1&arg2=v2, we will get arg1=1v1&arg2=v2
                 $q = explode("&", $query);
                 foreach ($q as $kvp) {
                     //break on = to get name value pairs
@@ -104,14 +104,14 @@ namespace com\indigloo {
          * @return urldecode value of parameter $name or NULL 
          *
          */
-		static function tryQueryParam($name){
-			$value = NULL ;
-			if(array_key_exists($name,$_GET) && !empty($_GET[$name])){
-				$value = $_GET[$name];
-			}
+        static function tryQueryParam($name){
+            $value = NULL ;
+            if(array_key_exists($name,$_GET) && !empty($_GET[$name])){
+                $value = $_GET[$name];
+            }
 
-			return $value ;
-		}
+            return $value ;
+        }
         
         /*
          * 
@@ -120,18 +120,18 @@ namespace com\indigloo {
          *
          */
 
-		static function getQueryParam($name){
-			$value = NULL ;
-			if(array_key_exists($name,$_GET) && !empty($_GET[$name])){
-				$value = $_GET[$name];
-			}
+        static function getQueryParam($name){
+            $value = NULL ;
+            if(array_key_exists($name,$_GET) && !empty($_GET[$name])){
+                $value = $_GET[$name];
+            }
 
-			if(is_null($value)){
-				trigger_error("Required request parameter $name is missing",E_USER_ERROR);
-			}
+            if(is_null($value)){
+                trigger_error("Required request parameter $name is missing",E_USER_ERROR);
+            }
 
-			return $value ;
-		}
+            return $value ;
+        }
 
         static function tryQueryPart($url) {
             $qpart = NULL ;

@@ -39,12 +39,12 @@ namespace com\indigloo\media {
         
 
         public function process($originalName) {
-			
+            
             $this->mediaData->originalName = $originalName ;
             $this->fileData = file_get_contents('php://input') ;
-			
+            
             $this->mediaData->mime = 'application/octet-stream' ;
-			$this->mediaData->size = strlen($this->fileData); ;
+            $this->mediaData->size = strlen($this->fileData); ;
             return ;
         }
         

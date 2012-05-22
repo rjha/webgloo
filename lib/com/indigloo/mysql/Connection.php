@@ -30,7 +30,7 @@ namespace com\indigloo\mysql {
 
             return self::$instance;
         }
-	
+    
         public function getHandle() {
             $this->numCalls++;
             if (Config::getInstance()->is_debug()) {

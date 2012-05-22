@@ -66,7 +66,7 @@ function fileDialogComplete(numFilesSelected, numFilesQueued) {
         }
         /* I want auto start the upload and I can do that here */
         this.startUpload();
-		
+        
     } catch (ex)  {
         this.debug(ex);
     }
@@ -75,16 +75,16 @@ function fileDialogComplete(numFilesSelected, numFilesQueued) {
 function uploadStart(file) {
     try {
         /* I don't want to do any file validation or anything,  I'll just update the UI and
-		return true to indicate that the upload should start.
-		It's important to update the UI here because in Linux no uploadProgress events are called. The best
-		we can do is say we are uploading.
-		 */
+        return true to indicate that the upload should start.
+        It's important to update the UI here because in Linux no uploadProgress events are called. The best
+        we can do is say we are uploading.
+         */
         var progress = new FileProgress(file, this.customSettings.progressTarget);
         progress.setStatus("Uploading...");
         progress.toggleCancel(true, this);
     }
     catch (ex) {}
-	
+    
     return true;
 }
 
@@ -101,14 +101,14 @@ function uploadProgress(file, bytesLoaded, bytesTotal) {
 }
 
 function uploadSuccess(file, serverData) {
-	//Dummy implementation
-	try {
+    //Dummy implementation
+    try {
         var progress = new FileProgress(file, this.customSettings.progressTarget);
-		progress.setStatus("Notice:: override dummy implementation of uploadSuccess!!");
+        progress.setStatus("Notice:: override dummy implementation of uploadSuccess!!");
     } catch (ex) {
         progress.setStatus("Error :: " + ex.toString());
     }
-	
+    
 }
 
 
@@ -168,12 +168,12 @@ function uploadComplete(file) {
     if (this.getStats().files_queued === 0) {
         document.getElementById(this.customSettings.cancelButtonId).disabled = true;
     }
-	
+    
 }
 
 // This event comes from the Queue Plugin
 function queueComplete(numFilesUploaded) {
     var status = document.getElementById("divStatus");
     status.innerHTML = numFilesUploaded + " file" + (numFilesUploaded === 1 ? "" : "s") + " uploaded.";
-	
+    
 }

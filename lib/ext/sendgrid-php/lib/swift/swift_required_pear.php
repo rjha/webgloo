@@ -13,7 +13,7 @@
  */
 
 if (defined('SWIFT_REQUIRED_LOADED'))
-	return;
+    return;
 
 define('SWIFT_REQUIRED_LOADED', true);
 

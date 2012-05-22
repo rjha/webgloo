@@ -140,8 +140,8 @@ namespace com\indigloo\ui\form {
 
         function getErrors() {
             if ($this->hasErrors() && Config::getInstance()->is_debug()) {
-				Logger::getInstance()->debug($this->fname . " :: posted errors ::");
-				Logger::getInstance()->dump($this->ferrors);
+                Logger::getInstance()->debug($this->fname . " :: posted errors ::");
+                Logger::getInstance()->dump($this->ferrors);
             }
             return $this->ferrors;
         }
