@@ -30,10 +30,9 @@ namespace com\indigloo {
 
         function __construct() {
             //each application will read from its own config file
-            $iniFile = $_SERVER['APP_CONFIG_PATH'];
-            file_exists($iniFile) || die("unable to open app_config.ini file ");
+            file_exists(APP_CONFIG_PATH) || die("unable to open application config.ini file ");
             // create config object
-            $this->ini_array = parse_ini_file($iniFile);
+            $this->ini_array = parse_ini_file(APP_CONFIG_PATH);
         }
 
         function get_value($key) {

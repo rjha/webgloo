@@ -13,19 +13,19 @@ namespace com\indigloo\auth {
      * table structure used with this class
      * ======================================
      *  id 
-        user_name ,
-        password ,
-        first_name ,
-        last_name ,
-        email ,
-        is_staff int default 0 ,
-        is_admin int default 0,
-        is_active int not null default 1,
-        salt ,
-        login_on TIMESTAMP,
-        created_on TIMESTAMP,
-        updated_on TIMESTAMP
-        =======================================
+     *  user_name ,
+     *  password ,
+     *  first_name ,
+     *   last_name ,
+     *   email ,
+     *   is_staff int default 0 ,
+     *   is_admin int default 0,
+     *   is_active int not null default 1,
+     *  salt ,
+     *  login_on TIMESTAMP,
+     *   created_on TIMESTAMP,
+     *   updated_on TIMESTAMP
+     *   =======================================
      *
      */
     class User {

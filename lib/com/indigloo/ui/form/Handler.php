@@ -174,11 +174,12 @@ namespace com\indigloo\ui\form {
             $this->fvalues[$name] = $value;
         }
 
-        private function getSecureHtml($x) {
-            //post values can be array as well
-            //like for multiple select checkboxes
+        public function getSecureHtml($x) {
+            // post value can be array for checkboxes  
+            // do not process arrays
             if(is_array($x)) { return $x; }
-            $x = (Util::tryEmpty($x) || !$this->translate) ? $x : htmlspecialchars($x,ENT_QUOTES) ;
+
+            $x = (Util::tryEmpty($x) || !$this->translate) ? $x : htmlspecialchars($x,ENT_QUOTES, "UTF-8") ;
             return trim($x) ;
         }
 

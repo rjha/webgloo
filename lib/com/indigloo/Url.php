@@ -106,6 +106,7 @@ namespace com\indigloo {
          */
         static function tryQueryParam($name){
             $value = NULL ;
+            //beware of empty checks - do not use zero etc. 
             if(array_key_exists($name,$_GET) && !empty($_GET[$name])){
                 $value = $_GET[$name];
             }

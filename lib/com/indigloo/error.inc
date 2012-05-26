@@ -27,7 +27,7 @@ function webgloo_error_handler($errorno,$errorstr,$file,$line) {
             \com\indigloo\Logger::getInstance()->error($errorstr);
             \com\indigloo\Logger::getInstance()->backtrace();
             //send generic json encoded message back to UI
-            $errorPageUrl = "/error.php?message=".base64_encode($errorstr) ;
+            $errorPageUrl = "/error.php?message=user_error";
             header('Location: '.$errorPageUrl);
             //Imp:Finally error handler should die
             exit(1);
@@ -92,7 +92,7 @@ function webgloo_exception_handler($ex) {
     $message = sprintf("file %s - line - %d :: %s \n",$ex->getFile(),$ex->getLine(),$message); 
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
-    $errorPageUrl = "/error.php?message=".base64_encode($message) ;
+    $errorPageUrl = "/error.php?message=exception" ;
     header('Location: '.$errorPageUrl);
     exit(1) ;
 }

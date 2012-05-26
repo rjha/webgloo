@@ -57,8 +57,8 @@ namespace com\indigloo {
 
 
             //full path of template file
-            $ftemplate = $_SERVER['APP_WEB_DIR'].$tfile ;
-            $fcompiled = $_SERVER['APP_WEB_DIR'].'/compiled'.$tfile . ".cc" ;
+            $ftemplate = APP_WEB_DIR.$tfile ;
+            $fcompiled = APP_WEB_DIR.'/compiled'.$tfile . ".cc" ;
 
             
             if(!file_exists($fcompiled) || (filemtime($fcompiled) < filemtime($ftemplate))) {

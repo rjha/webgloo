@@ -1,7 +1,7 @@
 <?php
 
     include ('news-app.inc');
-    include($_SERVER['APP_WEB_DIR'] . '/inc/header.inc');
+    include(APP_WEB_DIR . '/inc/header.inc');
     
     use com\indigloo\Util as Util;
     
