@@ -13,10 +13,6 @@ namespace com\indigloo\mysql {
         static private $instance = NULL;
         private $mysqli;
         private $connxId;
-        
-        //DB  codes
-        const ACK_OK = 0;
-        const DUPLICATE_KEY = 1;
 
         private function __construct() {
             $this->numCalls = 0;
@@ -30,11 +26,11 @@ namespace com\indigloo\mysql {
 
             return self::$instance;
         }
-    
+
         public function getHandle() {
             $this->numCalls++;
             if (Config::getInstance()->is_debug()) {
-                $message = 'Acquire mysql handle - ' . $this->connxId . ',call no - ' . $this->numCalls;
+                $message = sprintf(">> mysql connection_id :: %d :: call %d ",$this->connxId,$this->numCalls);
                 Logger::getInstance()->debug($message);
             }
             return $this->mysqli;
@@ -45,12 +41,12 @@ namespace com\indigloo\mysql {
                 $this->mysqli->close();
             }
             if (Config::getInstance()->is_debug()) {
-                Logger::getInstance()->debug('Closed mysql handle - ' . $this->connxId);
+                Logger::getInstance()->debug('>> mysql close connection_id :: ' . $this->connxId);
             }
 
             self::$instance == NULL;
         }
-        
+
         public function getLastInsertId() {
             return $this->mysqli->insert_id ;
         }
@@ -70,7 +66,7 @@ namespace com\indigloo\mysql {
             $this->connxId = spl_object_hash($this->mysqli);
 
             if (Config::getInstance()->is_debug()) {
-                $message = 'Created mysql connx - ' . $this->connxId;
+                $message = '>> mysql created connection_id ::' . $this->connxId;
                 Logger::getInstance()->debug($message);
             }
         }

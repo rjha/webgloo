@@ -7,16 +7,21 @@
 
 namespace com\indigloo\mysql {
 
-    use com\indigloo\Logger;
-    use com\indigloo\Configuration as Config;
-    use com\indigloo\mysql as MySQL;
+    use \com\indigloo\Logger;
+    use \com\indigloo\Configuration as Config;
+    use \com\indigloo\mysql as MySQL;
+    use com\indigloo\exception\DBException ;
 
     class Helper {
 
         static function fetchRows($mysqli, $sql) {
 
+            if (is_null($mysqli)) {
+                throw new DBException(" Fatal: Null mysqli connection supplied");
+            }
+
             if (is_null($sql) || is_null($mysqli)) {
-                trigger_error(" Fatal: Null mysqli connx or null SQL supplied", E_USER_ERROR);
+                throw new DBException(" Fatal: Null SQL supplied");
             }
 
             $rows = NULL;
@@ -27,7 +32,7 @@ namespace com\indigloo\mysql {
                     array_push($rows, $row);
                 }
             } else {
-                trigger_error($mysqli->error, E_USER_ERROR);
+                 throw new DBException($mysqli->error);
             }
 
             $result->free();
@@ -41,8 +46,12 @@ namespace com\indigloo\mysql {
 
         static function fetchRow($mysqli, $sql) {
 
+            if (is_null($mysqli)) {
+                throw new DBException(" Fatal: Null mysqli connection supplied");
+            }
+
             if (is_null($sql) || is_null($mysqli)) {
-                trigger_error(" Fatal: Null mysqli connx or null SQL supplied", E_USER_ERROR);
+                throw new DBException(" Fatal: Null SQL supplied");
             }
 
             $row = NULL;
@@ -50,8 +59,9 @@ namespace com\indigloo\mysql {
             if ($result) {
                 $row = $result->fetch_array(MYSQLI_ASSOC);
             } else {
-                trigger_error($mysqli->error, E_USER_ERROR);
+                throw new DBException($mysqli->error);
             }
+            
             $result->free();
             if (Config::getInstance()->is_debug()) {
                 Logger::getInstance()->debug(" Row SQL >> " . $sql);
@@ -64,21 +74,16 @@ namespace com\indigloo\mysql {
             if (Config::getInstance()->is_debug()) {
                 Logger::getInstance()->debug("execute SQL >> " . $sql);
             }
+
             $stmt = $mysqli->prepare($sql);
             if ($stmt) {
                 $stmt->execute();
                 $stmt->close();
             } else {
-                trigger_error($mysqli->error, E_USER_ERROR);
+                throw new DBException($mysqli->error);
             }
         }
-        
-        static function addLimitSQL($sql, $pageNo,$pageSize) {
-            $offset = 0 + ($pageNo - 1 ) * $pageSize;
-            $sql = $sql." LIMIT  " .$offset. "," .$pageSize;
-            return $sql ;
-        }
-        
+
     }
 
 }
