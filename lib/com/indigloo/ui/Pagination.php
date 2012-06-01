@@ -3,9 +3,9 @@
 namespace com\indigloo\ui {
 
     Use \com\indigloo\Url as Url ;
-    
+
     class Pagination {
-        
+
         private $pageNo ;
         private $totalPages ;
         private $qparams ;
@@ -20,14 +20,14 @@ namespace com\indigloo\ui {
             // no global varibale page? assume 1 for scrolling
             $this->pageNo = (array_key_exists('gpage',$qparams)) ? $qparams['gpage'] : 1 ;
             $this->totalPages = ceil($total / $pageSize);
-            
+
             if(empty($this->pageNo) || ($this->pageNo <= 0) || ($this->pageNo > $this->totalPages)) {
                 $this->pageNo = 1 ;
             }
 
             $this->qparams = $qparams ;
             $this->pageSize = $pageSize ;
-            
+
         }
 
         function isHome() {
@@ -44,7 +44,7 @@ namespace com\indigloo\ui {
         }
 
         function getDBParams() {
-        
+
             $start = NULL ;
             $direction = NULL ;
 
@@ -52,11 +52,10 @@ namespace com\indigloo\ui {
                 $direction = 'after' ;
                 $start = $this->qparams['gpa'] ;
             }
-            
+
             if(isset($this->qparams) && isset($this->qparams['gpb'])) {
                 $direction = 'before' ;
                 $start = $this->qparams['gpb'] ;
-                return array('start' => $start , 'direction' => $direction);
             }
 
             if(empty($start) || empty($direction)) {
@@ -65,9 +64,9 @@ namespace com\indigloo\ui {
 
             $start = base_convert($start,36,10);
             return array('start' => $start , 'direction' => $direction);
-            
+
         }
-        
+
         function hasNext() {
             if(($this->pageNo < $this->totalPages) && ($this->pageNo <= 20)) {
                 return true ;
@@ -75,45 +74,45 @@ namespace com\indigloo\ui {
                 return false ;
             }
         }
-    
+
         function nextPage() {
             return $this->pageNo + 1 ;
         }
-        
+
         function hasPrevious() {
             if($this->pageNo > 1 ) {
                 return true ;
             }else {
                 return false ;
             }
-    
+
         }
-    
+
         function previousPage() {
             return $this->pageNo - 1 ;
         }
-            
+
         function render($homeURI,$startId,$endId) {
-            
+
             if(empty($startId) || empty($endId)) {
                 return '' ;
             }
-            
+
             //convert to base36
             $startId = base_convert($startId,10,36) ;
             $endId = base_convert($endId,10,36) ;
             printf("<ul class=\"pager\">");
-            
+
             if($this->hasPrevious()){
-               
+
                 $bparams = array('gpb' => $startId, 'gpage' => $this->previousPage());
                 $q = array_merge($this->qparams,$bparams);
                 $ignore = array('gpa');
-                
+
                 $previousURI = Url::addQueryParameters($homeURI,$q,$ignore);
                 printf("<li> <a href=\"%s\">&larr; Previous</a> </li>",$previousURI);
             }
-            
+
             if($this->hasNext()){
                 $nparams = array('gpa' => $endId, 'gpage' => $this->nextPage()) ;
                 $q = array_merge($this->qparams,$nparams);
@@ -122,7 +121,7 @@ namespace com\indigloo\ui {
                 $nextURI = Url::addQueryParameters($homeURI,$q,$ignore);
                 printf("<li> <a href=\"%s\">Next &rarr;</a> </li>",$nextURI);
             }
-            
+
             printf("</ul>");
         }
     }
