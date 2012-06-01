@@ -29,7 +29,7 @@ namespace com\indigloo {
             $token = md5(uniqid(mt_rand(), true));
             return $token;
         }
-        
+
         function getRandomString($length = 8) {
             $characters = '123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $string = '';
@@ -42,7 +42,7 @@ namespace com\indigloo {
         }
 
         static function array2nl($arr) {
-            
+
             $str = array_reduce($arr, create_function('$a,$b', 'return $a."\n".$b ;'));
             return $str;
         }
@@ -63,11 +63,11 @@ namespace com\indigloo {
              if (!isset($original) || empty($original)) {
                 trigger_error("Wrong input: empty or null timestamp",E_USER_ERROR);
             }
-            
+
             $dt = strftime($format, strtotime($original));
             return $dt;
         }
-        
+
         static function secondsInDBTimeFromNow($original) {
 
             if (!isset($original) || empty($original)) {
@@ -85,27 +85,27 @@ namespace com\indigloo {
             $input = preg_replace('/\s\s+/', ' ', $input);
             return $input;
         }
-        
+
         /*
          * if you are not bothered about words breaking in the middle
          * then use php  substr. abbreviate is good for preserving "proper"
          * words.
-         * 
+         *
          */
-        
+
         static function abbreviate($input,$width) {
             if(empty($input)) return $input ;
-            
+
             if (strlen($input) <= $width) {
                 return $input;
             }
-            
+
             $output = substr($input,0,$width);
-            
+
             //normals words are seldom more than 30 chars
             $pos = 0 ;
             $found = false ;
-            
+
             for($i = $width-1 ; $i >= 0 ; $i--) {
                  if(ctype_space($output[$i])) {
                     $found = true ;
@@ -113,15 +113,15 @@ namespace com\indigloo {
                  }
                  $pos++ ;
             }
-            
+
             if($found && ($pos > 0)) {
                 $output = substr($output,0,($width-$pos));
                 $output = rtrim($output) ;
             }
-            
+
             return $output;
         }
-        
+
         static function isAlphaNumeric($input) {
             //Allow spaces
             $input = preg_replace('/\s+/', '', $input);
@@ -137,16 +137,16 @@ namespace com\indigloo {
             //replace non-alpha with space
             //@imp: ASCII specific filtering - will not work for utf-8
             $input = preg_replace("/[^0-9a-zA-Z.]/i", ' ', $input);
-            
+
             $input = self::squeeze($input);
             $input = str_replace(" ","-",$input);
             return $input ;
         }
 
-        /* 
-         * used to check empty strings 
+        /*
+         * used to check empty strings
          * php empty() will return TRUE for "<spaces>" and false
-         * for "0". we are interested in user inputs and want to catch 
+         * for "0". we are interested in user inputs and want to catch
          * empty or all spaces only
          *
          */
@@ -164,7 +164,7 @@ namespace com\indigloo {
             }
 
         }
-        
+
         static function isEmptyMessage($name, $value) {
             if (self::isEmpty($value)) {
                 $message = "Bad input :: $name is empty or null \n";
@@ -172,7 +172,7 @@ namespace com\indigloo {
                 exit ;
             }
         }
-        
+
         static function tryEmpty($value) {
             if(is_null($value)) { return true ; }
             $value = trim($value);
@@ -190,11 +190,11 @@ namespace com\indigloo {
             $kb = ceil(($bytes / 1024.00));
             return $kb;
         }
-        
+
         /*
          * given a fixed width of container w0, try to fold a width=w, height=h box so that
          * the original aspect ratio is preserved. There is No restriction on height
-         * 
+         *
          */
         static function foldX($w,$h,$w0) {
             if($w > $w0 ) {
@@ -205,40 +205,41 @@ namespace com\indigloo {
                 //return original
                 return array("width" => $w, "height" => $h);
             }
-            
+
         }
-        
+
         /*
          * given a container with width = w0 and height = h0, try to fit an element
          * of width=w, height=h so that the original (w/h) aspect is preserved.
          * this algorithm will terminate in 2 steps
-         * 
+         *
          */
-         
+
         static function foldXY($w,$h,$w0,$h0) {
-            
+
             if(($h <= $h0) && ($w <= $w0)) {
-                //terminate 
+                //terminate
                 return array("width" => $w, "height" => $h);
             }
-            
+
             if($w > $w0 ) {
                 $w2 = $w0 ;
                 $h2 = floor(($w0/$w)*$h) ;
                 return self::foldXY($w2,$h2,$w0,$h0) ;
             }
-            
+
             if($h > $h0 ) {
                 $h2 = $h0 ;
                 $w2 = floor(($h0/$h)*$w);
                 return self::foldXY($w2,$h2,$w0,$h0) ;
             }
         }
-        
+
         static function tryArrayKey($arr,$name){
             $value = NULL ;
             if(array_key_exists($name,$arr) && !empty($arr[$name])){
-                $value = $arr[$name];
+                $value = trim($arr[$name]);
+
             }
 
             return $value ;
@@ -247,7 +248,7 @@ namespace com\indigloo {
         static function getArrayKey($arr,$name){
             $value = NULL ;
             if(array_key_exists($name,$arr) && !empty($arr[$name])){
-                $value = $arr[$name];
+                $value = trim($arr[$name]);
             }
 
             if(is_null($value)){
@@ -259,7 +260,7 @@ namespace com\indigloo {
 
         /*
          * @param json string coming from database
-         * escape single quotes in json string 
+         * escape single quotes in json string
          *
          */
         static function formSafeJson($json) {
@@ -282,7 +283,7 @@ namespace com\indigloo {
         }
 
         static function encrypt($text) {
-            //max key size 24 for MCRYPT_RIJNDAEL_256 
+            //max key size 24 for MCRYPT_RIJNDAEL_256
             $key = Config::getInstance()->get_value("tmp.encrypt.key");
             $crypt = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_ECB);
             $crypt = base64_encode($crypt);
