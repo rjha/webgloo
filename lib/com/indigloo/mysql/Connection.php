@@ -16,11 +16,12 @@ namespace com\indigloo\mysql {
 
         private function __construct() {
             $this->numCalls = 0;
+            $this->mysqli = NULL ;
             $this->initDataBase();
         }
 
-        static function getInstance() {
-            if (self::$instance == NULL) {
+        static function getInstance($flag=true) {
+            if (is_null(self::$instance) && $flag) {
                 self::$instance = new Connection();
             }
 
@@ -37,14 +38,16 @@ namespace com\indigloo\mysql {
         }
 
         public function closeHandle() {
-            if ($this->numCalls > 0) {
+            if (!is_null($this->mysqli)) {
                 $this->mysqli->close();
             }
+
+            self::$instance == NULL;
+
             if (Config::getInstance()->is_debug()) {
                 Logger::getInstance()->debug('>> mysql close connection_id :: ' . $this->connxId);
             }
 
-            self::$instance == NULL;
         }
 
         public function getLastInsertId() {

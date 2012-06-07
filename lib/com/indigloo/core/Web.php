@@ -3,7 +3,7 @@
 /**
  *
  * @author rajeevj
- * 
+ *
  * Web is a  class that lets you access request and context
  * and exposes other helper methods also. Only one instance is in effect
  * during processing of a request.
@@ -11,8 +11,8 @@
  * This naming was influenced by web.py micro framework. This glue class lets
  * part of the system interact with each other much on the lines of web.py
  *
- * 
- * 
+ *
+ *
  */
 
 namespace com\indigloo\core {
@@ -27,7 +27,7 @@ namespace com\indigloo\core {
         private $urls;
         static private $instance = NULL;
         const CORE_URL_STACK = "core.url.stack";
-        
+
         private function __construct() {
             $this->request = new \com\indigloo\core\Request();
             $this->urls = array();
@@ -100,11 +100,17 @@ namespace com\indigloo\core {
         }
 
         function end() {
-            $mysqli = \com\indigloo\mysql\Connection::getInstance()->getHandle();
-            $mysqli->close();
+            //do not create a new instance
+            $mysql = \com\indigloo\mysql\Connection::getInstance(false);
+            if(!is_null($mysql)) {
+                $mysql->closeHandle();
+            }
+
             if (Config::getInstance()->is_debug()) {
                 Logger::getInstance()->debug('web >> end >> hash is:: ' . spl_object_hash(self::$instance));
             }
+
+
         }
     }
 
