@@ -17,11 +17,11 @@ namespace com\indigloo\mysql {
         static function fetchRows($mysqli, $sql) {
 
             if (is_null($mysqli)) {
-                throw new DBException(" Fatal: Null mysqli connection supplied");
+                throw new DBException("Fatal :: Null mysqli connection supplied");
             }
 
             if (is_null($sql) || is_null($mysqli)) {
-                throw new DBException(" Fatal: Null SQL supplied");
+                throw new DBException("Fatal :: Null SQL supplied");
             }
 
             $rows = NULL;
@@ -32,7 +32,7 @@ namespace com\indigloo\mysql {
                     array_push($rows, $row);
                 }
             } else {
-                 throw new DBException($mysqli->error);
+                 throw new DBException($mysqli->error,$mysqli->errno);
             }
 
             $result->free();
@@ -47,11 +47,11 @@ namespace com\indigloo\mysql {
         static function fetchRow($mysqli, $sql) {
 
             if (is_null($mysqli)) {
-                throw new DBException(" Fatal: Null mysqli connection supplied");
+                throw new DBException("Fatal :: Null mysqli connection supplied");
             }
 
             if (is_null($sql) || is_null($mysqli)) {
-                throw new DBException(" Fatal: Null SQL supplied");
+                throw new DBException("Fatal :: Null SQL supplied");
             }
 
             $row = NULL;
@@ -59,7 +59,7 @@ namespace com\indigloo\mysql {
             if ($result) {
                 $row = $result->fetch_array(MYSQLI_ASSOC);
             } else {
-                throw new DBException($mysqli->error);
+                throw new DBException($mysqli->error,$mysqli->errno);
             }
             
             $result->free();
@@ -80,7 +80,7 @@ namespace com\indigloo\mysql {
                 $stmt->execute();
                 $stmt->close();
             } else {
-                throw new DBException($mysqli->error);
+                throw new DBException($mysqli->error,$mysqli->errno);
             }
         }
 

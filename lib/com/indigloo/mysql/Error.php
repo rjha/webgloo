@@ -15,17 +15,17 @@ namespace com\indigloo\mysql {
 
     class Error {
 
-        static function handle($dbHandle) {
+        static function handle($mysqli) {
 
-            $errorNo = $dbHandle->errno;
+            $errorNo = $mysqli->errno;
+            settype($errorNo,"integer");
             //error code zero means success
-            if (empty($errorNo)) {
+            if ($errorNo == 0 ) {
                 return $errorNo;
             }
             
             //non zero error code means DB error
-            $message = sprintf("DB error :: code: %d  message: %s \n",$errorNo,$dbHandle->error);
-            throw new DBException($message);
+            throw new DBException($mysqli->error,$errorNo);
 
         }
 
