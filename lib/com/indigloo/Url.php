@@ -9,7 +9,7 @@ namespace com\indigloo {
      * @imp:
      * when creating URL - user is supposed to provide URL encoded parameters.
      * we never urlencode supplied parameters.
-     * when processing URL - we always urldecode the parameters. This is in line with 
+     * when processing URL - we always urldecode the parameters. This is in line with
      * default PHP behavior.
      *
      */
@@ -23,9 +23,13 @@ namespace com\indigloo {
             return $_SERVER['REQUEST_URI'];
         }
 
+        static function wwwBase() {
+            return "http://www.3mik.com" ;
+        }
+        
         /*
          * accept an array of parameters and add to base $url
-         * @param params is key-value of parameters. 
+         * @param params is key-value of parameters.
          * User should take care of encoding parameters if so desired.
          * @return new URL
          *
@@ -35,13 +39,13 @@ namespace com\indigloo {
             $q = self::getQueryParams($url);
             //params values will replace the one in q
             $q2 = array_merge($q, $params);
-            
+
             if(!is_null($ignore) && is_array($ignore)) {
                 foreach($ignore as $key) {
-                    unset($q2[$key]); 
+                    unset($q2[$key]);
                 }
             }
-            
+
             $fragment = \parse_url($url, PHP_URL_FRAGMENT);
             $path = \parse_url($url, PHP_URL_PATH);
             $newUrl = self::createUrl($path, $q2, $fragment);
@@ -49,11 +53,11 @@ namespace com\indigloo {
         }
 
         /*
-         * @imp: createUrl() will process the input as-it-is, without 
-         * any encoding. User should take care of encoding parameters. 
+         * @imp: createUrl() will process the input as-it-is, without
+         * any encoding. User should take care of encoding parameters.
          * @param  $params values should be URL encoded
          * @return new URL
-         * 
+         *
          */
         static function createUrl($path, $params, $fragment=NULL) {
             $count = 0;
@@ -69,9 +73,9 @@ namespace com\indigloo {
             $path = empty($fragment) ? $path : $path.'#'.$fragment;
             return $path;
         }
-        
+
         /*
-         * @imp : we need to urldecode the  parameter values before returning 
+         * @imp : we need to urldecode the  parameter values before returning
          * them to user. This is in line with default PHP $_GET behavior.
          * @return an array of URL parameter key value pairs.
          *
@@ -97,26 +101,26 @@ namespace com\indigloo {
             return $params;
         }
 
-        /* 
-         * @return  value of parameter $name from  _GET 
-         * @imp: As per the manual $_GET auto urldecodes the values 
+        /*
+         * @return  value of parameter $name from  _GET
+         * @imp: As per the manual $_GET auto urldecodes the values
          *
-         * @return urldecode value of parameter $name or NULL 
+         * @return urldecode value of parameter $name or NULL
          *
          */
         static function tryQueryParam($name){
             $value = NULL ;
-            //beware of empty checks - do not use zero etc. 
+            //beware of empty checks - do not use zero etc.
             if(array_key_exists($name,$_GET) && !empty($_GET[$name])){
                 $value = $_GET[$name];
             }
 
             return $value ;
         }
-        
+
         /*
-         * 
-         * @return urldecode value of parameter $name 
+         *
+         * @return urldecode value of parameter $name
          * @throws error when $name is not part of $_GET
          *
          */
@@ -137,7 +141,7 @@ namespace com\indigloo {
         static function tryQueryPart($url) {
             $qpart = NULL ;
             $pos = strpos($url, '?');
- 
+
             if($pos !== false) {
                 $qpart = substr($url, $pos+1);
             }
