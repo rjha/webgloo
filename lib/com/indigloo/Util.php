@@ -237,9 +237,10 @@ namespace com\indigloo {
 
         static function tryArrayKey($arr,$name){
             $value = NULL ;
-            if(array_key_exists($name,$arr) && !empty($arr[$name])){
-                $value = trim($arr[$name]);
-
+            if(isset($arr[$name])){
+                //$value can be any type - e.g. array, object
+                // do not use type specific function like trim() w/o type check
+                $value = $arr[$name];
             }
 
             return $value ;
@@ -247,11 +248,11 @@ namespace com\indigloo {
 
         static function getArrayKey($arr,$name){
             $value = NULL ;
-            if(array_key_exists($name,$arr) && !empty($arr[$name])){
-                $value = trim($arr[$name]);
-            }
-
-            if(is_null($value)){
+            if(isset($arr[$name])){
+                //$value can be any type - e.g. array, object
+                // do not use type specific function like trim() w/o type check
+                $value = $arr[$name];
+            } else {
                 trigger_error("Required array key $name is missing",E_USER_ERROR);
             }
 
@@ -267,19 +268,6 @@ namespace com\indigloo {
             $json = empty($json) ? '[]' : $json ;
             $json = str_replace("'","&#039;",$json);
             return $json;
-        }
-
-        static function unsetInArray(&$data, $keys) {
-            foreach($keys as $key){
-                if(isset($data[$key]))
-                    unset($data[$key]);
-            }
-
-            foreach ($data as &$element) {
-                if (is_array($element)) {
-                    self::unsetInArray($element, $keys);
-                }
-            }
         }
 
         static function encrypt($text) {
