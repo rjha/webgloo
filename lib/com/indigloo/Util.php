@@ -304,6 +304,29 @@ namespace com\indigloo {
             }
         }
 
+        static function getMimeFromName($name) {
+            $mime = NULL ;
+            $map = array(
+                "gif" => "image/gif",
+                "jpg" => "image/jpeg",
+                "jpeg" => "image/jpeg",
+                "png" => "image/png");
+
+            $pos = strrpos($name, '.');
+            if ($pos !== false) {
+                $extension = substr($name,$pos+1);
+
+                if(($extension !== false) && !empty($extension)) {
+                    $extension = strtolower($extension);
+                    $mime = (isset($map[$extension])) ? $map[$extension] : NULL ;
+                } 
+
+            }
+
+            return $mime ;
+
+        }
+
     }
 
 }
