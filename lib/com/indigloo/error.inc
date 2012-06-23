@@ -1,10 +1,23 @@
 <?php
 
 function send_mail($message) {
-    $tos = array("jha.rajeev@gmail.com", "srisaurabh2000@gmail.com");
+
+    $flag = \com\indigloo\Configuration::getInstance()->get_value("send.error.email");
+    if(intval($flag) != 1 ) {
+        return ;
+    }
+
+    $to = \com\indigloo\Configuration::getInstance()->get_value("error.email.to");
+    if(empty($to)) {
+        return ;
+    }
+
     $from = " support@3mik.com" ;
+    $tos = explode(",",$to);
+    $node = \com\indigloo\Configuration::getInstance()->get_value("node.name");
+
     $fromName = "3mik.com error reporter";
-    $subject =" Error on 3mik.com website " ;
+    $subject =" Error on 3mik node - ".$node ;
     $text = $message ;
     $html = $message ;
     \com\indigloo\mail\SendGrid::sendViaWeb($tos,$from,$fromName,$subject,$text,$html);
