@@ -70,21 +70,27 @@ namespace com\indigloo\media {
 
             $this->mediaData->originalName = $cleanName;
 
-            //now do image specific processings
+            // now do image specific processings
+            // and create a thumbnail 
             $tBlobData = $this->computeHW($sBlobData);
 
-            //caching headers
+            //amazon s3 meta  headers
             $offset = 3600*24*365;
             $expiresOn = gmdate('D, d M Y H:i:s \G\M\T', time() + $offset);
-            $headers = array('Expires' => $expiresOn, 'Cache-Control' => 'public, max-age=31536000');
+
+            $headers = array();
+            $headers["Expires"] = $expiresOn ;
+            $headers["Cache-Control"] =  "public, max-age=31536000" ;
+            $headers["Content-Type"] =  $this->mediaData->mime ;
+
             $storeName = $this->store->persist($prefix,$this->mediaData->originalName,$sBlobData,$headers);
 
 
-            //create a thumbnail 
-            //set correct headers
+            // override content-type header for thumbnail
+            // all thumbnails are image type jpeg
             $headers["Content-Type"] =  "image/jpeg";
+
             //change name to jpeg for thumbnail
-            //all thumbnails are image type jpeg
             $tname = Util::getThumbnailName($this->mediaData->originalName);
             $thumbnail = $this->store->persist($prefix,$tname,$tBlobData,$headers);
             
