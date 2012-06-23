@@ -57,6 +57,9 @@ namespace com\indigloo\media {
             if (is_null($sBlobData)) {
                 trigger_error('File processing returned Null Data', E_USER_ERROR);
             }
+
+            // @todo - check mime type of an image here?
+            // the downside : valid files without mime type would be rejected
              
             // image upload is done 
             // clean original file name of malformed utf-8 chars

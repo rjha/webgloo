@@ -3,14 +3,14 @@
 /*
  *
  *
+ * class to read file data and mime from browsers file uploads.
+ * (done with a file upload button).
+ * This pipe is useful when we want to upload files via browser and  ImageUpload class.
  *
- * jha.rajeev@gmail.com created for HTTP file upload 
  *
- * 1)
- * see the following php.ini settings
+ * 1) see the following php.ini settings
  *  - post_max_size 
  *  - upload_max_filesize
- *  The size limits here should be compatible with limits below
  * 
  * 2) webserver should have write permission on server TEMP dir 
  * 3) Also, an empty file input box is always set to an array 
@@ -141,18 +141,25 @@ namespace com\indigloo\media {
                 return ;
             }
             
-           
-            
             $this->mediaData->originalName = $fdata['name'];
-            $this->mediaData->mime = $fdata['type'];
-            
+
             $ftmp = $fdata['tmp_name'];
             $oTempFile = fopen($ftmp, "rb");
             
             $size = filesize($ftmp);
             $this->mediaData->size = $size ;
             $this->fileData = fread($oTempFile, $size);
-            
+
+            //get mime using finfo.
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_buffer($finfo, $this->fileData);
+
+            if($mime === FALSE ) {
+                $this->mediaData->mime = "application/octet-stream" ;
+            } else {
+                $this->mediaData->mime = $mime ;
+            }
+
             return ;
         }
         

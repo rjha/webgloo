@@ -5,6 +5,15 @@ namespace com\indigloo\media {
     use com\indigloo\Configuration as Config;
     use com\indigloo\Logger;
     
+    /**
+     * class to read data and mime from files on  local filesystem. 
+     * This pipe is useful when we want to upload local files via ImageUpload class.
+     * for e.g. if we want to upload local media folder to Amazon S3 bucket.
+     *
+     * @see \com\indigloo\media\ImageUpload
+     *
+     *
+     */
     class FilePipe {
         
         private $errors;
@@ -41,7 +50,17 @@ namespace com\indigloo\media {
             
             $this->mediaData->originalName = basename($abspath) ;
             $this->fileData = file_get_contents($abspath) ;
-            $this->mediaData->mime = 'application/octet-stream' ;
+
+            //get mime using finfo.
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $abspath);
+
+            if($mime === FALSE ) {
+                $this->mediaData->mime = "application/octet-stream" ;
+            } else {
+                $this->mediaData->mime = $mime ;
+            }
+
             $this->mediaData->size = strlen($this->fileData); ;
 
             return ;

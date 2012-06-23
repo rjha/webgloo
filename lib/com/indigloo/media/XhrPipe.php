@@ -5,6 +5,14 @@ namespace com\indigloo\media {
     use com\indigloo\Configuration as Config;
     use com\indigloo\Logger;
     
+    /*
+     * class to read file data and mime from xmlHttp file uploads.
+     * (done via ajax scripts or file upload plugin)
+     * This pipe is useful when we want to upload files via ajax and  ImageUpload class.
+     *
+     *
+     */
+
     class XhrPipe {
         
         private $errors;
@@ -42,8 +50,17 @@ namespace com\indigloo\media {
             
             $this->mediaData->originalName = $originalName ;
             $this->fileData = file_get_contents('php://input') ;
+
+            //get mime using finfo.
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_buffer($finfo, $this->fileData);
+
+            if($mime === FALSE ) {
+                $this->mediaData->mime = "application/octet-stream" ;
+            } else {
+                $this->mediaData->mime = $mime ;
+            }
             
-            $this->mediaData->mime = 'application/octet-stream' ;
             $this->mediaData->size = strlen($this->fileData); ;
             return ;
         }
