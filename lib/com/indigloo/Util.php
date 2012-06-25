@@ -260,13 +260,26 @@ namespace com\indigloo {
         }
 
         /*
-         * @param json string coming from database
-         * escape single quotes in json string
+         * @param json input string
+         * make input string safe to be used inside html and javascript
+         * This needs some explaining.
+         * 
+         * php json_encode will do the right escaping, say converting a newline
+         * character to \\n. However when we put json_encoded string inside  javascript
+         * as a literal, "\\n" is interpreted as literal "\n" (backslash escaping next backslash)
+         * Now Json.parse() will see literal "\n" as newline feed and fail.
+         *
+         * to make the json form safe, we need to run it through this filter.
+         *
+         * @see http://stackoverflow.com/questions/1048487/phps-json-encode-does-not-escape-all-json-control-characters/
          *
          */
         static function formSafeJson($json) {
             $json = empty($json) ? '[]' : $json ;
-            $json = str_replace("'","&#039;",$json);
+            $search = array('\\',"\n","\r","\f","\t","\b","'") ;
+            $replace = array('\\\\',"\\n", "\\r","\\f","\\t","\\b", "&#039");
+
+            $json = str_replace($search,$replace,$json);
             return $json;
         }
 
