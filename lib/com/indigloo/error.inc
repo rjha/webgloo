@@ -33,7 +33,8 @@ function webgloo_error_handler($errorno,$errorstr,$file,$line) {
         case E_STRICT :
         case E_NOTICE :
         case E_USER_NOTICE :
-            \com\indigloo\Logger::getInstance()->error(" $file :: $line :: $errorstr");
+            $message = sprintf("%s:%d [%d]  %s",$file,$line,$errorno,$errorstr);
+            \com\indigloo\Logger::getInstance()->error($message);
             break ;
 
         //E_USER_ERROR are not necessarily well defined errors
@@ -66,7 +67,8 @@ function webgloo_ajax_error_handler($errorno,$errorstr,$file,$line) {
         case E_STRICT :
         case E_NOTICE :
         case E_USER_NOTICE :
-            \com\indigloo\Logger::getInstance()->error(" $file :: $line :: $errorstr");
+            $message = sprintf("%s:%d [%d]  %s",$file,$line,$errorno,$errorstr);
+            \com\indigloo\Logger::getInstance()->error($message);
             break ;
 
         case E_USER_ERROR:
@@ -98,8 +100,8 @@ function offline_error_handler($errorno,$errorstr,$file,$line) {
             \com\indigloo\Logger::getInstance()->error(" $file :: $line :: $errorstr");
             break ;
         default:
-            \com\indigloo\Logger::getInstance()->error("__OFFLINE_ERROR__");
-            $message = sprintf("file %s - line - %s :: %s \n",$file,$line,$errorstr);
+
+            $message = sprintf("%s:%d  __OFFLINE__ %s",$file,$line,$errorstr);
             \com\indigloo\Logger::getInstance()->error($message);
             \com\indigloo\Logger::getInstance()->backtrace();
             send_mail($errorstr);
@@ -111,9 +113,16 @@ function offline_error_handler($errorno,$errorstr,$file,$line) {
     return true ;
 }
 
+
+function gobble_error_handler($errorno,$errorstr,$file,$line) {
+    $message = sprintf("%s:%d [%d] __GOBBLE__  %s",$file,$line,$errorno,$errorstr);
+    \com\indigloo\Logger::getInstance()->error($message);
+    return true ;
+}
+
 function webgloo_exception_handler($ex) {
     $message = $ex->getMessage();
-    $message = sprintf("file %s - line - %d :: %s \n",$ex->getFile(),$ex->getLine(),$message);
+    $message = sprintf("%s:%d  %s",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
 
@@ -124,13 +133,19 @@ function webgloo_exception_handler($ex) {
 }
 
 function offline_exception_handler($ex) {
-    \com\indigloo\Logger::getInstance()->error("__OFFLINE_ERROR__");
+    
     $message = $ex->getMessage();
-    $message = sprintf("file %s - line - %d :: %s \n",$ex->getFile(),$ex->getLine(),$message);
+    $message = sprintf("%s:%d  __OFFLINE__ %s \n",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
     send_mail($message);
     exit(1) ;
+}
+
+function gobble_exception_handler($ex) {
+
+    $message = sprintf("%s:%d  __GOBBLE__  %s \n",$ex->getFile(),$ex->getLine(),$ex->getMessage());
+    \com\indigloo\Logger::getInstance()->error($message);
 }
 
 //set default error handler
