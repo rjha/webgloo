@@ -44,6 +44,71 @@ namespace com\indigloo\text{
             return $scheme.'://'.$abs;
         }
 
+        function addScheme($url){
+            $scheme = \parse_url($url,PHP_URL_SCHEME);
+            if(empty($scheme)) {
+                $url = "http://".$url ;
+            } 
+
+            return $url ;
+        }
+
+        function extractUsingDom($url) {
+
+            if(empty($url)) { return ; }
+            $url = $this->addScheme($url);
+
+            $title = "" ;
+            $description = "" ;
+
+            $html = @file_get_contents($url);
+            $doc = new \DOMDocument();
+            @$doc->loadHTML($html);
+
+            $nodes = $doc->getElementsByTagName("title");
+            $length = $nodes->length ;
+            if($length > 0 ){ 
+                $title = $nodes->item(0)->nodeValue;
+            }
+
+            $metas = $doc->getElementsByTagName("meta");
+            $length = $metas->length ;
+            for ($i = 0; $i < $length; $i++) {
+                $meta = $metas->item($i);
+                if($meta->getAttribute("name") == "description") {
+                    $description = $meta->getAttribute("content");
+                }
+            }
+
+            $nodes = $doc->getElementsByTagName("img");
+
+            $srcImages = array();
+            $length = $nodes->length ;
+
+            for($i = 0 ; ($i < $length && $i < 10); $i++) {
+                $node = $nodes->item($i);
+                array_push($srcImages,$node->getAttribute("src"));
+            }
+
+             $images = array();
+
+            //create absolute urls
+            foreach($srcImages as $srcImage) {
+                $absUrl = $this->createAbsoluteUrl($srcImage,$url);
+                if(!is_null($absUrl)) {
+                    array_push($images,$absUrl);
+                }
+            }
+
+            $response = new \stdClass;
+            $response->title = $title ;
+            $response->description = $description ;
+            $response->images = $images ;
+            return $response ;
+
+
+        }
+
         /*
          * Given a choice between quick & Dirty vs. correct, always do the
          * quick (dirty!) thing in extract function. We want this to be quick
@@ -52,11 +117,17 @@ namespace com\indigloo\text{
          */
         
         function extract($url) {
-            //clean the Url 
+            // clean the Url 
             // last slash is not required 
             // figure out relative vs. full URL here
             // file_get_contents will fail for something like www.3mik.com
             // scheme is required
+
+            if(empty($url)) { return ; }
+            $url = $this->addScheme($url);
+
+            $title = "" ;
+            $description = "" ;
 
             $html = file_get_contents($url);
             
@@ -65,11 +136,9 @@ namespace com\indigloo\text{
             $title = $matches[1];
             
             $tags = get_meta_tags($url);
-            $description = '' ;
             
-            
-            if(!empty($tags) && array_key_exists('description',$tags)) {
-                $description = $tags['description'];
+            if(!empty($tags) && array_key_exists("description",$tags)) {
+                $description = $tags["description"];
             }
             
             if(empty($description)) {
@@ -105,11 +174,11 @@ namespace com\indigloo\text{
                 }
             }
 
-            $data = array('title' => $title,
-                          'description' => $description,
-                          'images' => $images);
-            
-            return $data ;
+            $response = new \stdClass;
+            $response->title = $title ;
+            $response->description = $description ;
+            $response->images = $images ;
+            return $response ;
         }
        
     }
