@@ -117,7 +117,7 @@ function offline_error_handler($errorno,$errorstr,$file,$line) {
 function gobble_error_handler($errorno,$errorstr,$file,$line) {
     $message = sprintf("%s:%d [%d] __GOBBLE__  %s",$file,$line,$errorno,$errorstr);
     \com\indigloo\Logger::getInstance()->error($message);
-    return true ;
+    throw new ErrorException($errorstr, 0, $errorno, $file, $line);
 }
 
 function webgloo_exception_handler($ex) {
