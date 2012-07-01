@@ -23,117 +23,40 @@ function send_mail($message) {
     \com\indigloo\mail\SendGrid::sendViaWeb($tos,$from,$fromName,$subject,$text,$html);
 }
 
-function webgloo_error_handler($errorno,$errorstr,$file,$line) {
+function webgloo_error_handler($errno,$errstr,$file,$line) {
 
     // do nothing for silenced errors
     if(error_reporting() == 0 ) { return true ; }
 
-    switch($errorno) {
-
+    switch($errno) {
         case E_STRICT :
         case E_NOTICE :
         case E_USER_NOTICE :
-            $message = sprintf("%s:%d [%d]  %s",$file,$line,$errorno,$errorstr);
+            $message = sprintf("%s:%d [%d]  __ERROR__ %s",$file,$line,$errno,$errstr);
             \com\indigloo\Logger::getInstance()->error($message);
             break ;
 
-        //E_USER_ERROR are not necessarily well defined errors
-        //so we cannot just display back those errors
-        //Also we cannot assume that loggin has been done.
-        //so we just let it be the default error case!
+        // E_USER_ERROR may not necessarily be a well defined error
+        // Hence E_USER_ERRORS should not bubble back to the user
         case E_USER_ERROR:
         default:
-            \com\indigloo\Logger::getInstance()->error($errorstr);
-            \com\indigloo\Logger::getInstance()->backtrace();
-            //send generic json encoded message back to UI
-            $errorPageUrl = "/error.php?message=user_error";
-            header('Location: '.$errorPageUrl);
-            //Imp:Finally error handler should die
-            send_mail($errorstr);
-            exit(1);
-
+            throw new ErrorException($errstr, 0, $errno, $file, $line);
     }
-
-    //do not execute PHP error handler
-    return true ;
-}
-
-function webgloo_ajax_error_handler($errorno,$errorstr,$file,$line) {
-
-    // do nothing for silenced errors
-    if(error_reporting() == 0 ) { return true ; }
-
-    switch($errorno) {
-        case E_STRICT :
-        case E_NOTICE :
-        case E_USER_NOTICE :
-            $message = sprintf("%s:%d [%d]  %s",$file,$line,$errorno,$errorstr);
-            \com\indigloo\Logger::getInstance()->error($message);
-            break ;
-
-        case E_USER_ERROR:
-        default:
-            \com\indigloo\Logger::getInstance()->error($errorstr);
-            \com\indigloo\Logger::getInstance()->backtrace();
-
-            //send ajax error message back to UI
-            $message =  'The server encountered an error. Please try after some time!';
-            $error = array('code' => 500, 'message' => $message);
-            $message =  json_encode($error) ;
-            echo $message ;
-            send_mail($errorstr);
-            //Imp:Finally error handler should die
-            exit(1);
-    }
-
-    return true ;
-}
-
-function offline_error_handler($errorno,$errorstr,$file,$line) {
-    // do nothing for silenced errors
-    if(error_reporting() == 0 ) { return true ; }
-
-    switch($errorno) {
-        case E_STRICT :
-        case E_NOTICE :
-        case E_USER_NOTICE :
-            \com\indigloo\Logger::getInstance()->error(" $file :: $line :: $errorstr");
-            break ;
-        default:
-
-            $message = sprintf("%s:%d  __OFFLINE__ %s",$file,$line,$errorstr);
-            \com\indigloo\Logger::getInstance()->error($message);
-            \com\indigloo\Logger::getInstance()->backtrace();
-            send_mail($errorstr);
-            exit(1) ;
-    }
-
-    //It is important to remember that the standard PHP error handler is completely bypassed
-    //unless the callback function returns FALSE
-    return true ;
-}
-
-
-function gobble_error_handler($errorno,$errorstr,$file,$line) {
-    $message = sprintf("%s:%d [%d] __GOBBLE__  %s",$file,$line,$errorno,$errorstr);
-    \com\indigloo\Logger::getInstance()->error($message);
-    throw new ErrorException($errorstr, 0, $errorno, $file, $line);
 }
 
 function webgloo_exception_handler($ex) {
     $message = $ex->getMessage();
-    $message = sprintf("%s:%d  %s",$ex->getFile(),$ex->getLine(),$message);
+    $message = sprintf("%s:%d  __EXCEPTION__ %s",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
 
-    $errorPageUrl = "/error.php?message=exception" ;
+    $errorPageUrl = "/error.php?message=system_exception" ;
     header('Location: '.$errorPageUrl);
     send_mail($message);
     exit(1) ;
 }
 
 function offline_exception_handler($ex) {
-    
     $message = $ex->getMessage();
     $message = sprintf("%s:%d  __OFFLINE__ %s \n",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
@@ -142,15 +65,23 @@ function offline_exception_handler($ex) {
     exit(1) ;
 }
 
-function gobble_exception_handler($ex) {
-
-    $message = sprintf("%s:%d  __GOBBLE__  %s \n",$ex->getFile(),$ex->getLine(),$ex->getMessage());
+function webgloo_ajax_exception_handler($ex) {
+    $message = $ex->getMessage();
+    $message = sprintf("%s:%d  __EXCEPTION__ %s \n",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
+    \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
+    
+    //send ajax error message back to UI
+    $message =  "The server encountered an error. Please try after some time!";
+    $error = array('code' => 500, 'message' => $message);
+    $message =  json_encode($error) ;
+    echo $message ;
+    send_mail($message);
+    exit(1) ;
 }
 
-//set default error handler
-// Without error_types mask our error_handler will be called for every error regardless to
-// the error_reporting setting
+// set default error handler. Without error_types mask our error_handler will be called 
+// for every error regardless of the error_reporting setting
 // mixed set_error_handler($callable, int error_types)
 
 ob_start();

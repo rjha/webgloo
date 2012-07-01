@@ -263,7 +263,20 @@ namespace com\indigloo {
          * @param json input string
          * make input string safe to be used inside html and javascript
          * This needs some explaining.
+         *
+         *  when storing json data 
+         *  -----------------------
+         * 1)@imp do not store results of PHP json_encode without changing \/ to / 
+         * PHP 5.4 provides options to unescape slashes but we are on 5.3
+         * 2)carriage returns and newlines will be escaped and stored as \\r and \\n
+         * 3) results from javascript JSON stringify() is fine because 
+         * it will not escape the solidus
          * 
+         *  when loading json from DB in a page via PHP
+         *  -------------------------------------------
+         *  1) Get the DB string, run it through this filter and assign to a variable
+         *  inside single quotes.
+         *
          * php json_encode will do the right escaping, say converting a newline
          * character to \\n. However when we put json_encoded string inside  javascript
          * as a literal, "\\n" is interpreted as literal "\n" (backslash escaping next backslash)
@@ -272,14 +285,28 @@ namespace com\indigloo {
          * to make the json form safe, we need to run it through this filter.
          *
          * @see http://stackoverflow.com/questions/1048487/phps-json-encode-does-not-escape-all-json-control-characters/
+         * Another problem is with solidus.(slash)
+         * PHP json_encode will escape solidus. when we run such string through this function, \/ will be
+         * converted to \\. 
+         * for e.g. http://www.3mik.com will be changed to http:\/\/www.3mik.com by PHP json_encode.
+         * when string in DB is run through this function - we get http:\\/\\/www.3mik.com 
+         * This filtered string will fail parsing by javascript.
+         * workaround is to remove the backslash before solidus.
+         *
+         * @see https://bugs.php.net/bug.php?id=49366 - for solidus escaping bug.
+         * @see http://noteslog.com/post/the-solidus-issue/ - for solidus issue.
          *
          */
         static function formSafeJson($json) {
             $json = empty($json) ? '[]' : $json ;
-            $search = array('\\',"\n","\r","\f","\t","\b","'") ;
-            $replace = array('\\\\',"\\n", "\\r","\\f","\\t","\\b", "&#039");
+            //remove escaping of solidus done by PHP json_encode
+            $json = str_replace("\/","/",$json);
 
+            //now escape json control characters
+            $search = array('\\', "\n","\r","\f","\t","\b","'") ;
+            $replace = array('\\\\',"\\n", "\\r","\\f","\\t","\\b", "&#039");
             $json = str_replace($search,$replace,$json);
+
             return $json;
         }
 
