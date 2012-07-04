@@ -82,23 +82,35 @@ namespace com\indigloo\text{
 
             $nodes = $doc->getElementsByTagName("img");
 
-            $srcImages = array();
             $length = $nodes->length ;
+            $count = 0 ;
+            $images = array();
 
-            for($i = 0 ; ($i < $length && $i < 10); $i++) {
+            for($i = 0 ; $i < $length; $i++) {
+
                 $node = $nodes->item($i);
-                array_push($srcImages,$node->getAttribute("src"));
+                $srcImage = $node->getAttribute("src");
+                $absUrl = $this->createAbsoluteUrl($srcImage,$url);
+                if(!is_null($absUrl)) {
+                    //@todo get image size
+                    array_push($images,$absUrl);
+                    $count++ ;
+
+                }
+
+
+                if($count > 14 ) break ;
+
             }
 
-             $images = array();
 
-            //create absolute urls
+            /*
             foreach($srcImages as $srcImage) {
                 $absUrl = $this->createAbsoluteUrl($srcImage,$url);
                 if(!is_null($absUrl)) {
                     array_push($images,$absUrl);
                 }
-            }
+            }*/
 
             $response = new \stdClass;
             $response->title = $title ;
