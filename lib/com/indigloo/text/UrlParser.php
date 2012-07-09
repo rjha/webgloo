@@ -99,7 +99,7 @@ namespace com\indigloo\text{
                 }
 
 
-                if($count > 14 ) break ;
+                if($count > 19) break ;
 
             }
 
