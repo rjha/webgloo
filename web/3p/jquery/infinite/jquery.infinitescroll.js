@@ -156,7 +156,7 @@
 
             // determine loading.finished actions
             opts.loading.finished = opts.loading.finished || function() {
-                //@change
+                //@imp: we move fadeOut inside masonry callback
                 //opts.loading.msg.fadeOut('normal');
             };
 
