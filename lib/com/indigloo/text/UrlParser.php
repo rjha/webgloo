@@ -10,28 +10,41 @@ namespace com\indigloo\text{
         /*
          * copied from http://www.geekality.net/2011/05/12/php-dealing-with-absolute-and-relative-urls/ 
          * @see also http://publicmind.in/blog/urltoabsolute/ 
+         * @rjha changed to modern PHP 
          *
          */
     
         function createAbsoluteUrl($url, $base) {
             //check input 
-            if( ! $url) return NULL;
-            if(parse_url($url, PHP_URL_SCHEME) != '') return $url;
-            
-            // Urls only containing query or anchor
-            if($url[0] == '#' || $url[0] == '?') return $base.$url;
-            
-            // Parse base URL and convert to local variables: $scheme, $host, $path
-            extract(parse_url($base));
+            if(empty($url) || empty($base)) { return NULL ; }
 
+            // php parse_url will go berserk with space in front
+            // just try parse_url on " http://www.3mik.com/item/1"
+            $url = trim($url);
+            $base = trim($base);
+            
+            $scheme = \parse_url($url,PHP_URL_SCHEME);
+            if(!empty($scheme)) {
+                return $url ;
+            }
+
+            // Urls only containing query or anchor
+            if(Util::startsWith($url,"#") || Util::startsWith($url,"?")) {
+                return $base.$url ;
+            }
+
+            // Parse base URL and convert to local variables: $scheme, $host, $path
+            $pieces = \parse_url($base);
+            $scheme = (isset($pieces["scheme"])) ? $pieces["scheme"] : "" ;
+            $host = (isset($pieces["host"])) ? $pieces["host"] : "" ;
             // If no path, use /
-            if( ! isset($path)) $path = '/';
-         
+            $path = (isset($pieces["path"])) ? $pieces["path"] : "/" ;
+
             // Remove non-directory element from path
             $path = preg_replace('#/[^/]*$#', '', $path);
          
             // Destroy path if relative url points to root
-            if($url[0] == '/') $path = '';
+            if(Util::startsWith($url,'/')) { $path = ''; }
         
             // Dirty absolute URL
             $abs = "$host$path/$url";
@@ -91,26 +104,18 @@ namespace com\indigloo\text{
                 $node = $nodes->item($i);
                 $srcImage = $node->getAttribute("src");
                 $absUrl = $this->createAbsoluteUrl($srcImage,$url);
-                if(!is_null($absUrl)) {
-                    //@todo get image size
+
+                if(!empty($absUrl)) {
+                    // @todo get rid of question mark at the end of img src?
+                    // this will interfere with images generated from scripts
+
                     array_push($images,$absUrl);
                     $count++ ;
-
                 }
-
 
                 if($count > 19) break ;
 
             }
-
-
-            /*
-            foreach($srcImages as $srcImage) {
-                $absUrl = $this->createAbsoluteUrl($srcImage,$url);
-                if(!is_null($absUrl)) {
-                    array_push($images,$absUrl);
-                }
-            }*/
 
             $response = new \stdClass;
             $response->title = $title ;
