@@ -8,6 +8,17 @@
    + Licensed under the MIT license
 
    + Documentation: http://infinite-scroll.com/
+   + 
+   ===========================================================
+   + This is a hacked up version to be used on www.3mik.com
+   + changes
+     1. added nextUrl property to opts.state
+     2. during setup copy nextSelector.href attribute into nextUrl
+     3. when loading finished: do not fade out loading message : moved to masonry callback
+     4. our own implementation of retrieve : to fetch nextUrl and content.
+
+   + @see diff from original 
+   =============================================================
 
 */
 
@@ -16,7 +27,6 @@
     $.infinitescroll = function infscr(options, callback, element) {
 
         this.element = $(element);
-
         // Flag the object in the event of a failed creation
         if (!this._create(options, callback)) {
             this.failed = true;
@@ -41,7 +51,8 @@
             isDestroyed: false,
             isDone: false, // For when it goes all the way through the archive.
             isPaused: false,
-            currPage: 1
+            currPage: 1,
+            nextUrl : undefined
         },
         callback: undefined,
         debug: false,
@@ -124,9 +135,7 @@
                 return false;
             }
 
-            // Set the path to be a relative URL from root.
-            opts.path = this._determinepath(path);
-
+            opts.state.nextUrl = path ;
             // contentSelector is 'page fragment' option for .load() / .ajax() calls
             opts.contentSelector = opts.contentSelector || this.element;
 
@@ -156,8 +165,8 @@
 
             // determine loading.finished actions
             opts.loading.finished = opts.loading.finished || function() {
-                //@imp: we move fadeOut inside masonry callback
-                //opts.loading.msg.fadeOut('normal');
+                // @imp: rjha changed : we move fadeOut inside masonry callback
+                // opts.loading.msg.fadeOut('normal');
             };
 
             // callback loading
@@ -182,55 +191,6 @@
             if (this.options && this.options.debug) {
                 return window.console && console.log.call(console, arguments);
             }
-
-        },
-
-        // find the number to increment in the path.
-        _determinepath: function infscr_determinepath(path) {
-
-            var opts = this.options;
-
-            // if behavior is defined and this function is extended, call that instead of default
-            if (!!opts.behavior && this['_determinepath_'+opts.behavior] !== undefined) {
-                this['_determinepath_'+opts.behavior].call(this,path);
-                return;
-            }
-
-            if (!!opts.pathParse) {
-
-                this._debug('pathParse manual');
-                return opts.pathParse(path, this.options.state.currPage+1);
-
-            } else if (path.match(/^(.*?)\b2\b(.*?$)/)) {
-                path = path.match(/^(.*?)\b2\b(.*?$)/).slice(1);
-
-                // if there is any 2 in the url at all.
-            } else if (path.match(/^(.*?)2(.*?$)/)) {
-
-                // page= is used in django:
-                // http://www.infinite-scroll.com/changelog/comment-page-1/#comment-127
-                if (path.match(/^(.*?page=)2(\/.*|$)/)) {
-                    path = path.match(/^(.*?page=)2(\/.*|$)/).slice(1);
-                    return path;
-                }
-
-                path = path.match(/^(.*?)2(.*?$)/).slice(1);
-
-            } else {
-
-                // page= is used in drupal too but second page is page=1 not page=2:
-                // thx Jerod Fritz, vladikoff
-                if (path.match(/^(.*?page=)1(\/.*|$)/)) {
-                    path = path.match(/^(.*?page=)1(\/.*|$)/).slice(1);
-                    return path;
-                } else {
-                    this._debug('Sorry, we couldn\'t parse your Next (Previous Posts) URL. Verify your the css selector points to the correct A tag. If you still get this error: yell, scream, and kindly ask for help at infinite-scroll.com.');
-                    // Get rid of isInvalidPage to allow permalink to state
-                    opts.state.isInvalidPage = true;  //prevent it from running on this page.
-                }
-            }
-            this._debug('determinePath', path);
-            return path;
 
         },
 
@@ -279,46 +239,40 @@
             switch (result) {
 
                 case 'done':
-
                     this._showdonemsg();
-                return false;
-
+                    return false;
                 break;
 
                 case 'no-append':
-
                     if (opts.dataType == 'html') {
-                    data = '<div>' + data + '</div>';
-                    data = $(data).find(opts.itemSelector);
-                }
+                        data = '<div>' + data + '</div>';
+                        data = $(data).find(opts.itemSelector);
+                    }
 
                 break;
-
                 case 'append':
 
                     var children = box.children();
 
-                // if it didn't return anything
-                if (children.length == 0) {
-                    return this._error('end');
-                }
+                    // if it didn't return anything
+                    if (children.length == 0) {
+                        return this._error('end');
+                    }
 
+                    // use a documentFragment because it works when content is going into a table or UL
+                    frag = document.createDocumentFragment();
+                    while (box[0].firstChild) {
+                        frag.appendChild(box[0].firstChild);
+                    }
 
-                // use a documentFragment because it works when content is going into a table or UL
-                frag = document.createDocumentFragment();
-                while (box[0].firstChild) {
-                    frag.appendChild(box[0].firstChild);
-                }
+                    this._debug('contentSelector', $(opts.contentSelector)[0])
+                    $(opts.contentSelector)[0].appendChild(frag);
+                    // previously, we would pass in the new DOM element as context for the callback
+                    // however we're now using a documentfragment, which doesnt havent parents or children,
+                    // so the context is the contentContainer guy, and we pass in an array
+                    //   of the elements collected as the first argument.
 
-                this._debug('contentSelector', $(opts.contentSelector)[0])
-                $(opts.contentSelector)[0].appendChild(frag);
-                // previously, we would pass in the new DOM element as context for the callback
-                // however we're now using a documentfragment, which doesnt havent parents or children,
-                // so the context is the contentContainer guy, and we pass in an array
-                //   of the elements collected as the first argument.
-
-                data = children.get();
-
+                    data = children.get();
 
                 break;
 
@@ -335,7 +289,6 @@
             }
 
             if (!opts.animate) opts.state.isDuringAjax = false; // once the call is done, we can allow it again.
-
             callback(this,data);
 
         },
@@ -451,10 +404,10 @@
         },
 
         /*
-            ----------------------------
+        ----------------------------
             Public methods
-            ----------------------------
-            */
+        ----------------------------
+        */
 
         // Bind to scroll
         bind: function infscr_bind() {
@@ -484,81 +437,51 @@
 
             var instance = this,
             opts = instance.options,
-            path = opts.path,
             box, frag, desturl, method, condition,
             pageNum = pageNum || null,
             getPage = (!!pageNum) ? pageNum : opts.state.currPage;
             beginAjax = function infscr_ajax(opts) {
 
-                // increment the URL bit. e.g. /page/3/
+                // increment the current page
                 opts.state.currPage++;
-
-                instance._debug('heading into ajax', path);
 
                 // if we're dealing with a table we can't use DIVs
                 box = $(opts.contentSelector).is('table') ? $('<tbody/>') : $('<div/>');
 
-                desturl = path.join(opts.state.currPage);
+                desturl = opts.state.nextUrl;
+                instance._debug('heading into ajax', desturl);
 
-                method = (opts.dataType == 'html' || opts.dataType == 'json' ) ? opts.dataType : 'html+callback';
-                if (opts.appendCallback && opts.dataType == 'html') method += '+callback'
+                /*
+                 * Earlier the plugin was using jQuery load() method on box to retrieve page fragments
+                 * (using url+space+selector trick and itemSelector filtering on returned document) 
+                 * box.load(url,callback) method was adding the page fragment as first child of box. 
+                 *
+                 * so we also "simulate" that behavior. we find the nextUrl from page and then 
+                 * use append the page fragment inside box.
+                 *
+                 *
+                 */
 
-                    switch (method) {
-
-                        case 'html+callback':
-
-                            instance._debug('Using HTML via .load() method');
-                        box.load(desturl + ' ' + opts.itemSelector, null, function infscr_ajax_callback(responseText) {
-                            instance._loadcallback(box, responseText);
-                        });
-
-                        break;
-
-                        case 'html':
-                            instance._debug('Using ' + (method.toUpperCase()) + ' via $.ajax() method');
-                        $.ajax({
-                            // params
-                            url: desturl,
-                            dataType: opts.dataType,
-                            complete: function infscr_ajax_callback(jqXHR, textStatus) {
-                                condition = (typeof (jqXHR.isResolved) !== 'undefined') ? (jqXHR.isResolved()) : (textStatus === "success" || textStatus === "notmodified");
-                                (condition) ? instance._loadcallback(box, jqXHR.responseText) : instance._error('end');
-                            }
-                        });
-
-                        break;
-                        case 'json':
-                            instance._debug('Using ' + (method.toUpperCase()) + ' via $.ajax() method');
-                        $.ajax({
-                            dataType: 'json',
-                            type: 'GET',
-                            url: desturl,
-                            success: function(data, textStatus, jqXHR) {
-                                condition = (typeof (jqXHR.isResolved) !== 'undefined') ? (jqXHR.isResolved()) : (textStatus === "success" || textStatus === "notmodified");
-                                if(opts.appendCallback) {
-                                    // if appendCallback is true, you must defined template in options.
-                                    // note that data passed into _loadcallback is already an html (after processed in opts.template(data)).
-                                    if(opts.template != undefined) {
-                                        var theData = opts.template(data);
-                                        box.append(theData);
-                                        (condition) ? instance._loadcallback(box, theData) : instance._error('end');
-                                    } else {
-                                        instance._debug("template must be defined.");
-                                        instance._error('end');
-                                    }
-                                } else {
-                                    // if appendCallback is false, we will pass in the JSON object. you should handle it yourself in your callback.
-                                    (condition) ? instance._loadcallback(box, data) : instance._error('end');
-                                }
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                instance._debug("JSON ajax request failed.");
-                                instance._error('end');
-                            }
-                        });
-
-                        break;
+                $.ajax({
+                    // params
+                    url: desturl,
+                    dataType: opts.dataType,
+                    complete: function infscr_ajax_callback(jqXHR, textStatus) {
+                        condition = (typeof (jqXHR.isResolved) !== 'undefined') ? (jqXHR.isResolved()) : (textStatus === "success" || textStatus === "notmodified");
+                        if(condition) {
+                            response = '<div>' + jqXHR.responseText  + '</div>' ;
+                            opts.state.nextUrl = $(response).find(opts.nextSelector).attr("href");
+                            data = $(response).find(opts.itemSelector);
+                            //Do the equivalent of box.load here
+                            $(box).append(data);
+                            instance._loadcallback(box,data) ;
+                        } else {
+                            instance._error('end');
+                        }
                     }
+                });
+
+
             };
 
             // if behavior is defined and this function is extended, call that instead of default
@@ -576,7 +499,6 @@
 
             // we dont want to fire the ajax multiple times
             opts.state.isDuringAjax = true;
-
             opts.loading.start.call($(opts.contentSelector)[0],opts);
 
         },
