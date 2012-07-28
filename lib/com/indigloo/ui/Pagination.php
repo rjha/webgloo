@@ -94,17 +94,15 @@ namespace com\indigloo\ui {
 
         function render($homeURI,$startId,$endId) {
 
-            if(empty($startId) || empty($endId)) {
+            if(empty($startId) && empty($endId)) {
                 return '' ;
             }
 
-            //convert to base36
-            $startId = base_convert($startId,10,36) ;
-            $endId = base_convert($endId,10,36) ;
             printf("<ul class=\"pager\">");
 
             if($this->hasPrevious()){
 
+                $startId = base_convert($startId,10,36) ;
                 $bparams = array('gpb' => $startId, 'gpage' => $this->previousPage());
                 $q = array_merge($this->qparams,$bparams);
                 $ignore = array('gpa');
@@ -114,6 +112,7 @@ namespace com\indigloo\ui {
             }
 
             if($this->hasNext()){
+                $endId = base_convert($endId,10,36) ;
                 $nparams = array('gpa' => $endId, 'gpage' => $this->nextPage()) ;
                 $q = array_merge($this->qparams,$nparams);
                 $ignore = array('gpb');
