@@ -264,34 +264,68 @@ namespace com\indigloo {
          * make input string safe to be used inside html and javascript
          * This needs some explaining.
          *
-         *  when storing json data 
+         *  when storing json data
          *  -----------------------
-         * 1)@imp do not store results of PHP json_encode without changing \/ to / 
-         * PHP 5.4 provides options to unescape slashes but we are on 5.3
-         * 2)carriage returns and newlines will be escaped and stored as \\r and \\n
-         * 3) results from javascript JSON stringify() is fine because 
-         * it will not escape the solidus
-         * 
-         *  when loading json from DB in a page via PHP
-         *  -------------------------------------------
-         *  1) Get the DB string, run it through this filter and assign to a variable
-         *  inside single quotes.
+         * we are using
          *
-         * php json_encode will do the right escaping, say converting a newline
-         * character to \\n. However when we put json_encoded string inside  javascript
-         * as a literal, "\\n" is interpreted as literal "\n" (backslash escaping next backslash)
+         * 1) javascript stringify() to push json data inside forms
+         * 2) PHP scripts to manipulate data already stored in our DB
+         *
+         * FYI: javascript JSON stringify() will not escape the solidus and is
+         * right about escaping. However PHP 5.3 will escape solidus. This escaping of
+         * solidus is a problem. PHP 5.4 provides options to unescape slashes
+         * but we are on 5.3
+         *
+         * so anywhere you are using json_encode on a json object to stringify it via PHP
+         * you should worry about "unescaping this extra escaping of solidus"
+         * 
+         * 3)carriage returns and newlines are escaped as \\r and \\n by PHP json_encode
+         *
+         *
+         *  when loading json from DB in a page via PHP
+         *  ---------------------------------------------
+         *
+         * There are 2 issues
+         *
+         * 1) control characters interpreted as "literal control characters"
+         *
+         * php json_encode has done the right escaping, say converting a newline
+         * character to \\n. However when we put this json_encoded string inside  javascript
+         * as a literal, "\\n" is interpreted as a literal "\n" (backslash escaping next backslash)
          * Now Json.parse() will see literal "\n" as newline feed and fail.
          *
-         * to make the json form safe, we need to run it through this filter.
+         * 2) issue with solidus (slash)
+         *
+         * @see above also. we use PHP 5.3 and we can store "escaped" solidus (\/)
+         * via PHP DB scripts. (stringify via javascript is fine)
+         *
+         * for e.g. http://www.3mik.com will be changed to http:\/\/www.3mik.com by PHP json_encode.
+         * unfortunately, inside this formSafeJson() function we escape backslash as
+         * backslash backslash (to take care of control characters) - that will result in
+         * DB string displayed as -  http:\\/\\/www.3mik.com
+         *
+         * so we need to change the "escaped solidus" before running our filter for
+         * control characters.
+         *
+         *
+         * Solution
+         * -----------------
+         * when storing
+         *
+         * 1) if json encoded data is sent to DB via java script - solidus is not escaped
+         * 2) if json_encoded data is sent to DB via a PHP script
+         *   e.g. a script that json_decode post.images_json , does some manipulation and
+         *   then json_encodes the string again - will escape solidus in PHP 5.3
+         *   This is a problem :- we should remove "escaping of solidus" before storing.
+         *
+         * when displaying
+         *
+         * 1) Get the string from DB, run it through this filter and assign to a variable
+         *  in javascript inside single quotes.
+         *
+         *
          *
          * @see http://stackoverflow.com/questions/1048487/phps-json-encode-does-not-escape-all-json-control-characters/
-         * Another problem is with solidus.(slash)
-         * PHP json_encode will escape solidus. when we run such string through this function, \/ will be
-         * converted to \\. 
-         * for e.g. http://www.3mik.com will be changed to http:\/\/www.3mik.com by PHP json_encode.
-         * when string in DB is run through this function - we get http:\\/\\/www.3mik.com 
-         * This filtered string will fail parsing by javascript.
-         * workaround is to remove the backslash before solidus.
          *
          * @see https://bugs.php.net/bug.php?id=49366 - for solidus escaping bug.
          * @see http://noteslog.com/post/the-solidus-issue/ - for solidus issue.
@@ -359,7 +393,7 @@ namespace com\indigloo {
                 if(($extension !== false) && !empty($extension)) {
                     $extension = strtolower($extension);
                     $mime = (isset($map[$extension])) ? $map[$extension] : NULL ;
-                } 
+                }
 
             }
 
