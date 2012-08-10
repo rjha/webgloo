@@ -13,11 +13,11 @@ Enjoy
 	font-family: 'zocial';
 	font-style: normal;
 	font-weight: normal;
-	src: url('zocial-regular-webfont.eot');
-	src: url('zocial-regular-webfont.eot?#iefix') format('embedded-opentype'),
-		url('zocial-regular-webfont.woff') format('woff'),
-		url('zocial-regular-webfont.ttf') format('truetype'),
-		url('zocial-regular-webfont.svg#ZocialRegular') format('svg');
+	src: url('/css/asset/zocial/zocial-regular-webfont.eot');
+	src: url('/css/asset/zocial/zocial-regular-webfont.eot?#iefix') format('embedded-opentype'),
+		url('/css/asset/zocial/zocial-regular-webfont.woff') format('woff'),
+		url('/css/asset/zocial/zocial-regular-webfont.ttf') format('truetype'),
+		url('/css/asset/zocial/zocial-regular-webfont.svg#ZocialRegular') format('svg');
 }
 
 /* Button structure */
