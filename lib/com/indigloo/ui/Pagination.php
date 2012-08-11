@@ -108,7 +108,7 @@ namespace com\indigloo\ui {
                 $ignore = array('gpa');
 
                 $previousURI = Url::addQueryParameters($homeURI,$q,$ignore);
-                printf("<li> <a href=\"%s\">&larr; Previous</a> </li>",$previousURI);
+                printf("<li> <a rel=\"prev\" href=\"%s\">&larr; Previous</a> </li>",$previousURI);
             }
 
             if($this->hasNext()){
@@ -118,7 +118,7 @@ namespace com\indigloo\ui {
                 $ignore = array('gpb');
 
                 $nextURI = Url::addQueryParameters($homeURI,$q,$ignore);
-                printf("<li> <a href=\"%s\">Next &rarr;</a> </li>",$nextURI);
+                printf("<li> <a rel=\"next\" href=\"%s\">Next &rarr;</a> </li>",$nextURI);
             }
 
             printf("</ul>");
