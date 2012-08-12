@@ -5,9 +5,6 @@
  * © 2010 Andrew Valums ( andrew(at)valums.com ) 
  * 
  * Licensed under GNU GPL 2 or later and GNU LGPL 2 or later, see license.txt.
- *
- * +rjha changed to add custom label for upload button
- *
  */    
 
 //
@@ -486,11 +483,10 @@ qq.FileUploader = function(o){
         element: null,
         // if set, will be used instead of qq-upload-list in template
         listElement: null,
-             
+                
         template: '<div class="qq-uploader">' + 
                 '<div class="qq-upload-drop-area"><span>Drop files here to upload</span></div>' +
-                '<a class="qq-upload-button btn"><i class="icon-camera"> </i> ' + 
-                 o.labelOfButton + '</a>' +
+                '<div class="qq-upload-button">Upload a file</div>' +
                 '<ul class="qq-upload-list"></ul>' + 
              '</div>',
 
