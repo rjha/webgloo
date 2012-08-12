@@ -2,8 +2,7 @@
 
 namespace com\indigloo {
 
-    use com\indigloo\Util ;
-
+    
     /*
      * Class to provide utility functions for URL creation and processing.
      * @imp:
