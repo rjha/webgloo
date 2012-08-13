@@ -35,8 +35,16 @@ namespace com\indigloo {
             $this->ini_array = parse_ini_file(APP_CONFIG_PATH);
         }
 
-        function get_value($key) {
-            return $this->ini_array[$key];
+        function get_value($key,$default=NULL) {
+
+            if(array_key_exists($key, $this->ini_array)) {
+                return $this->ini_array[$key];
+            } else if(!empty($default)) {
+                return $default ;
+            } else {
+                return NULL ;
+            }
+
         }
 
         function __destruct() {
