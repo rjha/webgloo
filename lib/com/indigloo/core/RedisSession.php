@@ -43,7 +43,8 @@ namespace com\indigloo\core {
             // some other code could have closed the redis connection
             // e.g. the site footer. so wrap the close call inside null check
             if(!is_null($this->redis)) {
-                $this->redis->close();
+                $this->redis->quit();
+                $this->redis = NULL ;
             }
 
             return TRUE ;

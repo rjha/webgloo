@@ -46,6 +46,7 @@ namespace com\indigloo\connection {
         public function close() {
             if(!is_null($this->connx)) {
                 $this->connx->quit();
+                $this->connx = NULL ;
             }
             
             self::$instance == NULL;
