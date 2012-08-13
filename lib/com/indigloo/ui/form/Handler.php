@@ -70,7 +70,7 @@ namespace com\indigloo\ui\form {
             //stale security token!
             $formToken = $this->post[$name];
             if(strcmp($formToken,$sessionToken) != 0) {
-                $message = "Security token not found! Please save your data and reload this page.";
+                $message = "Security token has expired! Please save your data and reload this page.";
                 array_push($this->ferrors,$message);
                 return ;
             }
