@@ -30,9 +30,12 @@ function webgloo_error_handler($errno,$errstr,$file,$line) {
 
     switch($errno) {
         case E_STRICT :
+            $message = sprintf("%s:%d [%d]  __STRICT__ %s",$file,$line,$errno,$errstr);
+            \com\indigloo\Logger::getInstance()->error($message);
+            break ;
         case E_NOTICE :
         case E_USER_NOTICE :
-            $message = sprintf("%s:%d [%d]  __ERROR__ %s",$file,$line,$errno,$errstr);
+            $message = sprintf("%s:%d [%d]  __NOTICE__ %s",$file,$line,$errno,$errstr);
             \com\indigloo\Logger::getInstance()->error($message);
             break ;
 
