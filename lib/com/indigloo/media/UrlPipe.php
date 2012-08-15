@@ -48,7 +48,7 @@ namespace com\indigloo\media {
             $DOT = "." ;
 
             $pos = strrpos($url, '.');
-            if ($pos != false) {
+            if ($pos !== false) {
                 //separate extension
                 $extension = substr($url, $pos + 1);
                 $this->mediaData->originalName = md5($url).$DOT.$extension;

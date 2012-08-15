@@ -20,7 +20,7 @@ namespace com\indigloo\media {
             $storeName = substr(md5($token), rand(1, 15), 16).rand(1,4096);
             $pos = strrpos($name, '.');
 
-            if ($pos != false) {
+            if ($pos !== false) {
                 //separate filename and extension
                 $extension = substr($name, $pos + 1);
                 $storeName =  $storeName. '.' . $extension;
