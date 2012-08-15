@@ -119,6 +119,12 @@ namespace com\indigloo\text{
 
             $response = new \stdClass;
             $response->title = $title ;
+
+            //truncate description to manageable 500 chars
+            if(!empty($description) && (strlen($description) > 500)) {
+                $description = substr($description,0,500) ;
+            }
+
             $response->description = $description ;
             $response->images = $images ;
             return $response ;
