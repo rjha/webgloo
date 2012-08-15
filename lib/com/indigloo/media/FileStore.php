@@ -23,7 +23,28 @@ namespace com\indigloo\media {
             if ($pos !== false) {
                 //separate filename and extension
                 $extension = substr($name, $pos + 1);
-                $storeName =  $storeName. '.' . $extension;
+
+                // some cms append a version string at end of image name
+                // like abcd.png?v123 or abcd.png&a=102&b=302 etc.
+                
+                $buffer = '' ;
+
+                if(!empty($extension)){
+                    
+                    for($i = 0; $i < strlen($extension) ; $i++ ){
+                        $ch = $extension{$i};
+
+                        if(ctype_alnum($ch)) {
+                            $buffer .= $ch ;
+                        } else {
+                            break ;
+                        }
+                    }
+
+                    $storeName =  empty($buffer) ? $storeName : $storeName. '.' . $buffer;
+                     
+                }
+                   
             } 
 
             return $storeName ;
