@@ -400,6 +400,20 @@ namespace com\indigloo {
 
         }
 
+        static function getFileExtension($name) {
+            $extension = NULL ;
+
+            $pos = strrpos($name, '.');
+            if ($pos !== false) {
+                //separate filename and extension
+                $extension = substr($name, $pos + 1);
+                
+            } 
+
+            return $extension ;
+
+        }
+
     }
 
 }
