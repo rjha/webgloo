@@ -1,8 +1,11 @@
 <?php
 
+
+
 namespace com\indigloo {
 
-    
+    use \com\indigloo\Configuration as Config ;
+
     /*
      * Class to provide utility functions for URL creation and processing.
      * @imp:
@@ -15,17 +18,33 @@ namespace com\indigloo {
     class Url {
 
         static function base() {
-            return 'http://'.$_SERVER["HTTP_HOST"] ;
+            $host = NULL ;
+            $sapi_type = php_sapi_name();
+            
+            //running from cli sapi?
+            if ( (substr($sapi_type, 0, 3) == "cli") && !isset($_SERVER["HTTP_HOST"])) {
+                //read from config file
+                $host = Config::getInstance()->get_value("www.host.name");
+                if(empty($host)) {
+                    trigger_error("www.host.name key not found in config.", E_USER_ERROR);
+                }
+
+            } else {
+                $host = $_SERVER["HTTP_HOST"];
+            }
+
+            return 'http://'.$host ;
         }
 
         static function current() {
-            return $_SERVER['REQUEST_URI'];
+           
+            if(!isset($_SERVER['REQUEST_URI'])) {
+                trigger_error("REQUEST_URI key is missing from _SERVER globals",E_USER_ERROR);
+            }
+
+            return $_SERVER['REQUEST_URI'] ;
         }
 
-        static function wwwBase() {
-            return "http://www.3mik.com" ;
-        }
-        
         /*
          * accept an array of parameters and add to base $url
          * @param params is key-value of parameters.
@@ -71,6 +90,11 @@ namespace com\indigloo {
 
             $path = empty($fragment) ? $path : $path.'#'.$fragment;
             return $path;
+        }
+
+        static function getRequestQueryParams() {
+            $url = self::current();
+            return self::getQueryParams($url);
         }
 
         /*
