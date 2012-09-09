@@ -172,6 +172,11 @@ namespace com\indigloo {
             return $qpart;
         }
 
+        static function addHttp($link) {
+            $scheme = \parse_url($link,PHP_URL_SCHEME);
+            $link = empty($scheme) ? "http://".$link : $link ;
+            return $link ;
+        }
     }
 
 }
