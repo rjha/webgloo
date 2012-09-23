@@ -68,6 +68,13 @@ namespace com\indigloo {
             return $dt;
         }
 
+        /**
+         * find number in seconds elapsed since the DB timestamp
+         * 
+         * @return +ve number in seconds for past timestamps
+         * @return -ve number in seconds for future timestamps
+         * 
+         */
         static function secondsInDBTimeFromNow($original) {
 
             if (!isset($original) || empty($original)) {
@@ -77,7 +84,7 @@ namespace com\indigloo {
             //calculate base time stamp
             $basets = strtotime("now");
             $ts = strtotime($original);
-            $interval = $ts - $basets;
+            $interval =  $basets - $ts ;
             return $interval;
         }
 
