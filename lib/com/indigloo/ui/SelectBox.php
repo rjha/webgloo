@@ -26,7 +26,7 @@ namespace com\indigloo\ui {
 
                 $flag = (!is_null($default) && ($row['code'] == $default))? 'selected' : '' ;
                 $str = str_replace(array("{code}","{display}","{flag}") ,
-                                   array($row['code'], $row['display'],$flag) , $option);
+                                   array($row['ui_code'], $row['name'],$flag) , $option);
                 $buffer = $buffer.$str ;
                                          
             }
