@@ -16,36 +16,43 @@ namespace com\indigloo\media {
         }
 
         static function getHashedName($name) {
+            
             $token = $name.date(DATE_RFC822);
             $storeName = substr(md5($token), rand(1, 15), 16).rand(1,4096);
-            $pos = strrpos($name, '.');
 
-            if ($pos !== false) {
-                //separate filename and extension
-                $extension = substr($name, $pos + 1);
+            $extension = NULL ;
+            $path_parts = pathinfo($name);
+            if(isset($path_parts["extension"]) && !empty($path_parts["extension"])) {
+                $extension = $path_parts["extension"];
+            }
 
-                // some cms append a version string at end of image name
-                // like abcd.png?v123 or abcd.png&a=102&b=302 etc.
-                
-                $buffer = '' ;
+            if(!empty($extension)) {
+                $pext = "" ;
 
-                if(!empty($extension)){
-                    
-                    for($i = 0; $i < strlen($extension) ; $i++ ){
-                        $ch = $extension{$i};
+                for($i = 0; $i < strlen($extension) ; $i++ ){
+                    $ch = $extension{$i};
 
-                        if(ctype_alnum($ch)) {
-                            $buffer .= $ch ;
-                        } else {
-                            break ;
-                        }
+                    if(ctype_alnum($ch)) {
+                        $pext .= $ch ;
+                    } else {
+                        break ;
                     }
-
-                    $storeName =  empty($buffer) ? $storeName : $storeName. '.' . $buffer;
-                     
                 }
-                   
-            } 
+
+                //copied from media wiki
+                // @see http://www.mediawiki.org/wiki/Manual:$wgFileExtensions
+                // @see http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+                $wgFileExtensions = array( 'png', 'gif', 'jpg', 'jpeg', 'ppt', 'pdf', 
+                                            'txt', 'xml', 'xls', 'xlsx', 'csv', 'doc',
+                                            'docx', 'odt', 'odc', 'odp');
+
+                //processed extension in allowed list?
+                if(in_array($pext,$wgFileExtensions)) {
+                    $storeName = $storeName. '.' . $pext;
+                }
+
+               
+            }
 
             return $storeName ;
         }

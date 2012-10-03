@@ -48,18 +48,15 @@ namespace com\indigloo\media {
 
         public function process($abspath) {
             
-            $this->mediaData->originalName = basename($abspath) ;
+            $fname = basename($abspath) ;
+            $this->mediaData->originalName = (strlen($fname) > 255) ? md5($fname) : $fname ;
+
             $this->fileData = file_get_contents($abspath) ;
 
             //get mime using finfo.
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime = finfo_file($finfo, $abspath);
-
-            if($mime === FALSE ) {
-                $this->mediaData->mime = "application/octet-stream" ;
-            } else {
-                $this->mediaData->mime = $mime ;
-            }
+            $this->mediaData->mime = ($mime === FALSE ) ?  "application/octet-stream" : $mime ;
 
             $this->mediaData->size = strlen($this->fileData); ;
 
