@@ -193,6 +193,10 @@ namespace com\indigloo {
             return strpos($haystack, $needle) === 0;
         }
 
+        static function contains($haystack, $needle) {
+            return strpos($haystack, $needle) !== false;
+        }
+
         static function convertBytesIntoKB($bytes) {
             //divide bytes by 1024
             $kb = ceil(($bytes / 1024.00));

@@ -23,6 +23,7 @@ namespace com\indigloo\auth {
      *   is_active int not null default 1,
      *  salt ,
      *  login_on TIMESTAMP,
+     *  ip_address,
      *   created_on TIMESTAMP,
      *   updated_on TIMESTAMP
      *   =======================================
@@ -55,7 +56,8 @@ namespace com\indigloo\auth {
 
         static function login($tableName,$email,$password) {
 
-            $code = -1 ;
+            $loginId = NULL ;
+
             if(empty($tableName)) {
                 trigger_error("User Table name is not supplied",E_USER_ERROR);
                 exit(1);
@@ -97,11 +99,11 @@ namespace com\indigloo\auth {
                     unset($row["salt"]);
 
                     $_SESSION[self::USER_DATA] = $row;
-                    $code = 1 ;
+                    $loginId = $row["login_id"] ;
                 }
             }
 
-            return $code;
+            return $loginId;
         }
 
         function isStaff() {
@@ -161,10 +163,18 @@ namespace com\indigloo\auth {
 
         }
 
-        static function create($tableName,$firstName,$lastName,$userName,$email,$password,$loginId) {
+        static function create(
+            $tableName,
+            $firstName,
+            $lastName,
+            $userName,
+            $email,
+            $password,
+            $loginId,
+            $remoteIp) {
 
             if(empty($tableName)) {
-                throw new \com\indigloo\exception\DBException("User Table name is not supplied",E_USER_ERROR);
+                throw new \com\indigloo\exception\DBException("User Table name is not supplied",1);
                 exit(1);
             }
 
@@ -185,21 +195,22 @@ namespace com\indigloo\auth {
             $digest = sha1($message);
 
             $sql = " insert into {table} (first_name, last_name, user_name,email,password, " ;
-            $sql .= " salt,created_on,is_staff,login_id) ";
-            $sql .= " values(?,?,?,?,?,?,now(),0,?) ";
+            $sql .= " salt,created_on,is_staff,login_id,ip_address) ";
+            $sql .= " values(?,?,?,?,?,?,now(),0,?,?) ";
             $sql = str_replace("{table}", $tableName,$sql);
 
             //store computed password and random salt
             $stmt = $mysqli->prepare($sql);
             if ($stmt) {
-                $stmt->bind_param("ssssssi",
+                $stmt->bind_param("ssssssis",
                         $firstName,
                         $lastName,
                         $userName,
                         $email,
                         $digest,
                         $salt,
-                        $loginId);
+                        $loginId,
+                        $remoteIp);
 
                 $stmt->execute();
 

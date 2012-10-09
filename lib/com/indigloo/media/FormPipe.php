@@ -140,8 +140,9 @@ namespace com\indigloo\media {
             if(sizeof($this->errors) > 0 ) {
                 return ;
             }
-            
-            $this->mediaData->originalName = $fdata['name'];
+
+            $fname = basename($fdata['name']) ;
+            $this->mediaData->originalName = (strlen($fname) > 255) ? md5($fname) : $fname ;
 
             $ftmp = $fdata['tmp_name'];
             $oTempFile = fopen($ftmp, "rb");
@@ -153,12 +154,7 @@ namespace com\indigloo\media {
             //get mime using finfo.
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime = finfo_buffer($finfo, $this->fileData);
-
-            if($mime === FALSE ) {
-                $this->mediaData->mime = "application/octet-stream" ;
-            } else {
-                $this->mediaData->mime = $mime ;
-            }
+            $this->mediaData->mime = ($mime === FALSE ) ?  "application/octet-stream" : $mime ;
 
             return ;
         }

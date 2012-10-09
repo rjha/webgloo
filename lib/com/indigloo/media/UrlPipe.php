@@ -44,28 +44,15 @@ namespace com\indigloo\media {
         
         public function process($url) {
             
-            $extension = NULL ;
-            $DOT = "." ;
-
-            $pos = strrpos($url, '.');
-            if ($pos !== false) {
-                //separate extension
-                $extension = substr($url, $pos + 1);
-                $this->mediaData->originalName = md5($url).$DOT.$extension;
-            } else {
-                $this->mediaData->originalName = md5($url);
-            }
-
+            $fname = basename($url) ;
+            $this->mediaData->originalName = (strlen($fname) > 255) ? md5($fname) : $fname ;
+            
             $this->fileData = file_get_contents($url) ;
+
             // get mime using finfo.
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime = finfo_buffer($finfo, $this->fileData);
-
-            if($mime === FALSE ) {
-                $this->mediaData->mime = "application/octet-stream" ;
-            } else {
-                $this->mediaData->mime = $mime ;
-            }
+            $this->mediaData->mime = ($mime === FALSE ) ?  "application/octet-stream" : $mime ;
 
             $this->mediaData->size = strlen($this->fileData); ;
             return ;
