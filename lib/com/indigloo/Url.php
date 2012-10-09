@@ -45,6 +45,10 @@ namespace com\indigloo {
             return $_SERVER['REQUEST_URI'] ;
         }
 
+        static function getRemoteIp(){
+            return $_SERVER['REMOTE_ADDR'];
+        }
+
         /*
          * accept an array of parameters and add to base $url
          * @param params is key-value of parameters.
