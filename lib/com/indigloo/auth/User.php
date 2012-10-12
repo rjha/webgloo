@@ -4,7 +4,6 @@ namespace com\indigloo\auth {
 
     use \com\indigloo\Util as Util;
     use \com\indigloo\mysql as MySQL;
-    use \com\indigloo\auth\view\User as UserVO ;
     use \com\indigloo\exception\DBException;
 
 
@@ -31,31 +30,13 @@ namespace com\indigloo\auth {
      */
     class User {
 
-        /**
-         * for valid username/password combo
-         * set the user details in session and return success code
-         * for invalid username/password
-         * return error code
-         *
-         *
-         */
-
-        const USER_TOKEN = "WEBGLOO_USER_TOKEN" ;
         const USER_DATA = "WEBGLOO_USER_DATA" ;
 
-        static function createView($row) {
-            $user = new UserVO();
-
-            $user->email = $row['email'];
-            $user->firstName  =$row['first_name'];
-            $user->lastName = $row['last_name'];
-            $user->userName = $row['user_name'] ;
-
-            return $user ;
-        }
-
         static function login($tableName,$email,$password) {
-
+            // signal successful login by returning a valid loginId
+            // otherwise throw an exception
+            // caller should handle this exception
+            
             $loginId = NULL ;
 
             if(empty($tableName)) {
@@ -89,78 +70,26 @@ namespace com\indigloo\auth {
                 $outcome = strcmp($dbPassword, $computedDigest);
 
                 //good password
-                //set userdata in session
+                // get and return loginId
                 if ($outcome == 0) {
-                    $randomToken = Util::getBase36GUID();
-                    $_SESSION[self::USER_TOKEN] = $randomToken;
-
-                    //mask password and salt from user session
-                    unset($row["password"]);
-                    unset($row["salt"]);
-
-                    $_SESSION[self::USER_DATA] = $row;
                     $loginId = $row["login_id"] ;
+                    
+                    //set user data in session
+                    $udata = array();
+                    $udata["is_admin"] = $row["is_admin"];
+                    $udata["is_staff"] = $row["is_staff"];
+                    $udata["login_id"] = $loginId ;
+
+                    
+                    $_SESSION[self::USER_DATA] = $udata;
                 }
             }
 
+            if(empty($loginId) || is_null($loginId)) {
+                throw new \com\indigloo\exception\DBException("wrong email or password",401);
+            }
+
             return $loginId;
-        }
-
-        function isStaff() {
-            $flag = false ;
-            if (isset($_SESSION) && isset($_SESSION[self::USER_TOKEN])) {
-                $userDBRow = $_SESSION[self::USER_DATA];
-                $flag = ($userDBRow['is_staff'] == 1) ? true : false ;
-            }
-
-            return $flag;
-        }
-
-        function isAdmin() {
-            $flag = false ;
-            if (isset($_SESSION) && isset($_SESSION[self::USER_TOKEN])) {
-                $userDBRow = $_SESSION[self::USER_DATA];
-                $flag = ($userDBRow['is_admin'] == 1) ? true : false ;
-            }
-
-            return $flag;
-        }
-
-        function isAuthenticated() {
-            $flag = false ;
-            if (isset($_SESSION) && isset($_SESSION[self::USER_TOKEN])) {
-                $flag = true ;
-            }
-
-            return $flag ;
-
-        }
-
-        static function getUserInSession() {
-
-            $user = NULL ;
-            if (isset($_SESSION) && isset($_SESSION[self::USER_TOKEN])) {
-                $userDBRow = $_SESSION[self::USER_DATA];
-                $user =  UserVO::create($userDBRow);
-
-            } else {
-                trigger_error('logon session does not exists', E_USER_ERROR);
-            }
-
-            return $user ;
-
-        }
-
-        static function tryUserInSession() {
-
-            $user = NULL ;
-            if (isset($_SESSION) && isset($_SESSION[self::USER_TOKEN])) {
-                $userDBRow = $_SESSION[self::USER_DATA];
-                $user =  UserVO::create($userDBRow);
-            }
-
-            return $user ;
-
         }
 
         static function create(
