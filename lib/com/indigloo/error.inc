@@ -53,7 +53,7 @@ function webgloo_exception_handler($ex) {
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
 
-    $errorPageUrl = "/error.php?message=system_exception" ;
+    $errorPageUrl = "/site/error/500.php?message=system_exception" ;
     header('Location: '.$errorPageUrl);
     send_mail($message);
     exit(1) ;
