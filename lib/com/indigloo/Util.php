@@ -451,6 +451,22 @@ namespace com\indigloo {
     
       }
 
+      /*
+       * return elements from array a that are not present in array B
+       * @imp order matters if $a is an empty array then you would always
+       * get an empty array!
+       * 
+       */
+      
+        static function fast_array_diff($a, $b) {
+            $map = $out = array();
+            foreach($a as $val) $map[$val] = 1;
+            foreach($b as $val) if(isset($map[$val])) $map[$val] = 0;
+            foreach($map as $val => $ok) if($ok) $out[] = $val;
+            return $out;
+        }
+
+
     }
 
 }
