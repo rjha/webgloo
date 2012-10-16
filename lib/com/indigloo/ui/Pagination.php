@@ -68,7 +68,7 @@ namespace com\indigloo\ui {
         }
 
         function hasNext() {
-            if(($this->pageNo < $this->totalPages) && ($this->pageNo <= 20)) {
+            if($this->pageNo < $this->totalPages) {
                 return true ;
             } else {
                 return false ;
