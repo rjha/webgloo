@@ -609,12 +609,13 @@ qq.FileUploader = function(o){
 
         template: '<div class="qq-uploader">' +
             (!this._options.disableDefaultDropzone ? '<div class="qq-upload-drop-area"><span>{dragText}</span></div>' : '') +
-            (!this._options.button ? '<div class="qq-upload-button btn"><i class="icon icon-camera"></i>&nbsp;{uploadButtonText}</div>' : '') +
+            (!this._options.button ? '<div class="qq-upload-button">{uploadButtonText}</div>' : '') +
             (!this._options.listElement ? '<ul class="qq-upload-list"></ul>' : '') +
             '</div>',
 
         // template for one item in file list
         fileTemplate: '<li>' +
+            '<div class="qq-progress-bar"></div>' +
             '<span class="qq-upload-spinner"></span>' +
             '<span class="qq-upload-finished"></span>' +
             '<span class="qq-upload-file"></span>' +
@@ -630,6 +631,7 @@ qq.FileUploader = function(o){
             dropActive: 'qq-upload-drop-area-active',
             dropDisabled: 'qq-upload-drop-area-disabled',
             list: 'qq-upload-list',
+            progressBar: 'qq-progress-bar',
             file: 'qq-upload-file',
             spinner: 'qq-upload-spinner',
             finished: 'qq-upload-finished',
@@ -638,6 +640,7 @@ qq.FileUploader = function(o){
             failText: 'qq-upload-failed-text',
 
             // added to list item <li> when upload completes
+            // used in css to hide progress spinner
             success: 'qq-upload-success',
             fail: 'qq-upload-fail',
 
@@ -802,10 +805,42 @@ qq.extend(qq.FileUploader.prototype, {
         qq.FileUploaderBasic.prototype._onSubmit.apply(this, arguments);
         this._addToList(id, fileName);
     },
+    // Update the progress bar & percentage as the file is uploaded
+    _onProgress: function(id, fileName, loaded, total){
+        qq.FileUploaderBasic.prototype._onProgress.apply(this, arguments);
+
+        var item = this._getItemByFileId(id);
+
+        if (loaded === total) {
+            var cancelLink = this._find(item, 'cancel');
+            cancelLink.style.display = 'none';
+        }
+
+        var size = this._find(item, 'size');
+        size.style.display = 'inline';
+
+        var text;
+        var percent = Math.round(loaded / total * 100);
+
+        if (loaded != total) {
+            // If still uploading, display percentage
+            text = this._formatProgress(loaded, total);
+        } else {
+            // If complete, just display final size
+            text = this._formatSize(total);
+        }
+
+        // Update progress bar <span> tag
+        this._find(item, 'progressBar').style.width = percent + '%';
+
+        qq.setText(size, text);
+    },
     _onComplete: function(id, fileName, result){
         qq.FileUploaderBasic.prototype._onComplete.apply(this, arguments);
 
         var item = this._getItemByFileId(id);
+
+        qq.remove(this._find(item, 'progressBar'));
 
         if (!this._options.disableCancelForFormUploads || qq.UploadHandlerXhr.isSupported()) {
             qq.remove(this._find(item, 'cancel'));
@@ -831,6 +866,10 @@ qq.extend(qq.FileUploader.prototype, {
         qq.FileUploaderBasic.prototype._onUpload.apply(this, arguments);
 
         var item = this._getItemByFileId(id);
+
+        if (qq.UploadHandlerXhr.isSupported()) {
+            this._find(item, 'progressBar').style.display = "block";
+        }
 
         var spinnerEl = this._find(item, 'spinner');
         if (spinnerEl.style.display == "none") {
@@ -1488,6 +1527,13 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
 
         var xhr = this._xhrs[id] = new XMLHttpRequest();
         var self = this;
+
+        xhr.upload.onprogress = function(e){
+            if (e.lengthComputable){
+                self._loaded[id] = e.loaded;
+                self._options.onProgress(id, name, e.loaded, e.total);
+            }
+        };
 
         xhr.onreadystatechange = function(){
             if (xhr.readyState == 4){
