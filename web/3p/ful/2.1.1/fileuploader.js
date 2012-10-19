@@ -609,7 +609,7 @@ qq.FileUploader = function(o){
 
         template: '<div class="qq-uploader">' +
             (!this._options.disableDefaultDropzone ? '<div class="qq-upload-drop-area"><span>{dragText}</span></div>' : '') +
-            (!this._options.button ? '<div class="qq-upload-button btn"><i class="icon icon-camera"></i>&nbsp;{uploadButtonText}</div>' : '') +
+            (!this._options.button ? '<a class="qq-upload-button btn" href="#"><i class="icon icon-camera"></i>&nbsp;{uploadButtonText}</a>' : '') +
             (!this._options.listElement ? '<ul class="qq-upload-list"></ul>' : '') +
             '</div>',
 
