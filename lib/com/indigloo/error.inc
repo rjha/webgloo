@@ -48,6 +48,10 @@ function webgloo_error_handler($errno,$errstr,$file,$line) {
 }
 
 function webgloo_exception_handler($ex) {
+
+    $message = sprintf("URL = {%s}",$_SERVER['REQUEST_URI']);
+    \com\indigloo\Logger::getInstance()->error($message);
+
     $message = $ex->getMessage();
     $message = sprintf("%s:%d  __EXCEPTION__ %s",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
@@ -69,6 +73,9 @@ function offline_exception_handler($ex) {
 }
 
 function webgloo_ajax_exception_handler($ex) {
+    $message = sprintf("URL = {%s}",$_SERVER['REQUEST_URI']);
+    \com\indigloo\Logger::getInstance()->error($message);
+
     $message = $ex->getMessage();
     $message = sprintf("%s:%d  __EXCEPTION__ %s \n",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
