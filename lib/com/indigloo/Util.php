@@ -173,14 +173,6 @@ namespace com\indigloo {
 
         }
 
-        static function isEmptyMessage($name, $value) {
-            if (self::isEmpty($value)) {
-                $message = "Bad input :: $name is empty or null \n";
-                echo nl2br($message);
-                exit ;
-            }
-        }
-
         static function tryEmpty($value) {
             if(is_null($value)) { return true ; }
             $value = trim($value);
