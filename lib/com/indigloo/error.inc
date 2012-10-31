@@ -23,6 +23,22 @@ function send_mail($message) {
     \com\indigloo\mail\SendGrid::sendViaWeb($tos,$from,$fromName,$subject,$text,$html);
 }
 
+function get_user_diagnostics() {
+    /* diagnostic info */
+    $login = \com\indigloo\sc\auth\Login::tryLoginInSession();
+    $name = (is_null($login)) ? "_N_" : sprintf("%s :: %s ",$login->id,$login->name) ;
+
+    $message = "\n + URL = {%s}\n + IP = {%s}\n + agent = {%s}\n + login = {%s} \n";
+    $message = sprintf($message,
+        $_SERVER['REQUEST_URI'],
+        $_SERVER['REMOTE_ADDR'], 
+        $_SERVER['HTTP_USER_AGENT'],
+        $name);
+
+    \com\indigloo\Logger::getInstance()->error($message);
+    return $message ;
+}
+
 function webgloo_error_handler($errno,$errstr,$file,$line) {
 
     // do nothing for silenced errors
@@ -48,10 +64,9 @@ function webgloo_error_handler($errno,$errstr,$file,$line) {
 }
 
 function webgloo_exception_handler($ex) {
-
-    $message = sprintf("URL = {%s}",$_SERVER['REQUEST_URI']);
-    \com\indigloo\Logger::getInstance()->error($message);
-
+   
+    $diagnostic = get_user_diagnostics();
+    /* error message */
     $message = $ex->getMessage();
     $message = sprintf("%s:%d  __EXCEPTION__ %s",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
@@ -59,7 +74,7 @@ function webgloo_exception_handler($ex) {
 
     $errorPageUrl = "/site/error/500.php?message=system_exception" ;
     header('Location: '.$errorPageUrl);
-    send_mail($message);
+    send_mail($diagnostic.$message);
     exit(1) ;
 }
 
@@ -73,20 +88,20 @@ function offline_exception_handler($ex) {
 }
 
 function webgloo_ajax_exception_handler($ex) {
-    $message = sprintf("URL = {%s}",$_SERVER['REQUEST_URI']);
-    \com\indigloo\Logger::getInstance()->error($message);
+    /* user diagnostics */
+    $diagnostic = get_user_diagnostics();
 
     $message = $ex->getMessage();
     $message = sprintf("%s:%d  __EXCEPTION__ %s \n",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
     
-    //send ajax error message back to UI
-    $message =  "The server encountered an error. Please try after some time!";
-    $error = array('code' => 500, 'message' => $message);
-    $message =  json_encode($error) ;
-    echo $message ;
-    send_mail($message);
+    //send nice message  to UI
+    $ui_message =  "The server encountered an error. Please try after some time!";
+    $error = array('code' => 500, 'message' => $ui_message);
+    $strJson =  json_encode($error) ;
+    echo $strJson ;
+    send_mail($diagnostic.$message);
     exit(1) ;
 }
 
