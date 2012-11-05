@@ -22,6 +22,10 @@ namespace com\indigloo\mysql {
             $this->mysqli = $mysqli;
         }
 
+        function setPrefixAnd() {
+            $this->prefix = self::SQL_AND ;
+        }
+
         function setAlias($class,$alias){
             $this->amap[$class] = $alias;
         }
