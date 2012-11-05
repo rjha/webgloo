@@ -7,21 +7,33 @@ namespace com\indigloo\ui {
     class Pagination {
 
         private $pageNo ;
-        private $totalPages ;
         private $qparams ;
         private $pageSize ;
 
-        function __construct($qparams,$total,$pageSize) {
+        function __construct($qparams,$pageSize) {
+            $this->pageNo = -1 ;
 
-            if(array_key_exists('gpa',$qparams) && array_key_exists('gpb',$qparams)){
-                trigger_error('Query params has both gpa and gpb variables',E_USER_ERROR);
+            if(!empty($qparams) && isset($qparams["gpage"])) {
+                $this->pageNo = $qparams["gpage"];
+            }else {
+                $this->pageNo = 1 ;
             }
 
-            // no global varibale page? assume 1 for scrolling
-            $this->pageNo = (array_key_exists('gpage',$qparams)) ? $qparams['gpage'] : 1 ;
-            $this->totalPages = ceil($total / $pageSize);
+            if(array_key_exists("gpa",$qparams) && array_key_exists("gpb",$qparams)){
+                // both gpa and gpb param in request
+                // we do not know what page you are asking for!
+                $this->pageNo = 1 ;
 
-            if(empty($this->pageNo) || ($this->pageNo <= 0) || ($this->pageNo > $this->totalPages)) {
+            }
+
+            if(!array_key_exists("gpa",$qparams) && !array_key_exists("gpb",$qparams)){
+                // both gpa and gpb param missing
+                // we do not know what page you are asking for!
+                $this->pageNo = 1 ;
+            }
+
+            settype($this->pageNo,"integer");
+            if(empty($this->pageNo) || ($this->pageNo <= 0)) {
                 $this->pageNo = 1 ;
             }
 
@@ -48,31 +60,29 @@ namespace com\indigloo\ui {
             $start = NULL ;
             $direction = NULL ;
 
-            if(isset($this->qparams) && isset($this->qparams['gpa'])) {
-                $direction = 'after' ;
-                $start = $this->qparams['gpa'] ;
+            if(isset($this->qparams) && isset($this->qparams["gpa"])) {
+                $direction = "after" ;
+                $start = $this->qparams["gpa"] ;
             }
 
-            if(isset($this->qparams) && isset($this->qparams['gpb'])) {
-                $direction = 'before' ;
-                $start = $this->qparams['gpb'] ;
+            if(isset($this->qparams) && isset($this->qparams["gpb"])) {
+                $direction = "before" ;
+                $start = $this->qparams["gpb"] ;
             }
 
+            // both gpa and gpb are missing from request URL
+            // during paginator construction - this should be flagged
+            // as pageNo == 1 
             if(empty($start) || empty($direction)) {
-                trigger_error('paginator is missing [start | direction ] parameter', E_USER_ERROR);
+                trigger_error("paginator is missing [start | direction ] parameter", E_USER_ERROR);
             }
 
             $start = base_convert($start,36,10);
-            return array('start' => $start , 'direction' => $direction);
-
+            return array("start" => $start , "direction" => $direction);
         }
 
         function hasNext() {
-            if($this->pageNo < $this->totalPages) {
-                return true ;
-            } else {
-                return false ;
-            }
+            return true ;
         }
 
         function nextPage() {
@@ -80,12 +90,8 @@ namespace com\indigloo\ui {
         }
 
         function hasPrevious() {
-            if($this->pageNo > 1 ) {
-                return true ;
-            }else {
-                return false ;
-            }
-
+            $flag = ($this->pageNo > 1 ) ? true : false ;
+            return $flag ;
         }
 
         function previousPage() {
@@ -95,7 +101,7 @@ namespace com\indigloo\ui {
         function render($homeURI,$startId,$endId) {
 
             if(empty($startId) && empty($endId)) {
-                return '' ;
+                return "" ;
             }
 
             printf("<ul class=\"pager\">");
