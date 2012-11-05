@@ -34,6 +34,7 @@ namespace com\indigloo\util{
 
             //convert lowercase
             $buffer = strtolower($buffer);
+            $buffer = trim($buffer);
             return $buffer ;
 
         }
@@ -63,6 +64,7 @@ namespace com\indigloo\util{
             }
 
             $buffer = ucwords($buffer);
+            $buffer = trim($buffer);
             return $buffer ;
         }
 
