@@ -145,6 +145,15 @@ namespace com\indigloo {
             return $value ;
         }
 
+        static function tryBase64QueryParam($name,$default=NULL) {
+            $value = self::tryQueryParam($name);
+            if(is_null($value) && !is_null($default)) {
+                $value = base64_encode($default);
+            }
+
+            return $value ;
+        }
+
         /*
          *
          * @return urldecode value of parameter $name
