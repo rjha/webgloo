@@ -154,6 +154,10 @@ namespace com\indigloo {
             return $value ;
         }
 
+        static function tryFormUrl($key) {
+            $fUrl = isset($_POST[$key]) ? $_POST[$key] : "/site/error/500.php" ;
+        }
+
         /*
          *
          * @return urldecode value of parameter $name
