@@ -156,6 +156,7 @@ namespace com\indigloo {
 
         static function tryFormUrl($key) {
             $fUrl = isset($_POST[$key]) ? $_POST[$key] : "/site/error/500.php" ;
+            return $fUrl;
         }
 
         /*
