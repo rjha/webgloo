@@ -81,8 +81,9 @@ namespace com\indigloo\ui {
             return array("start" => $start , "direction" => $direction);
         }
 
-        function hasNext() {
-            return true ;
+        function hasNext($gNumRecords) {
+            $flag = ($gNumRecords >= $this->pageSize) ? true : false ;
+            return $flag ;
         }
 
         function nextPage() {
@@ -98,7 +99,7 @@ namespace com\indigloo\ui {
             return $this->pageNo - 1 ;
         }
 
-        function render($homeURI,$startId,$endId) {
+        function render($homeURI,$startId,$endId,$gNumRecords) {
 
             if(empty($startId) && empty($endId)) {
                 return "" ;
@@ -117,7 +118,7 @@ namespace com\indigloo\ui {
                 printf("<li> <a rel=\"prev\" href=\"%s\">&larr; Previous</a> </li>",$previousURI);
             }
 
-            if($this->hasNext()){
+            if($this->hasNext($gNumRecords)){
                 $endId = base_convert($endId,10,36) ;
                 $nparams = array('gpa' => $endId, 'gpage' => $this->nextPage()) ;
                 $q = array_merge($this->qparams,$nparams);
