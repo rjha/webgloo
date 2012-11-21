@@ -458,6 +458,39 @@ namespace com\indigloo {
             return $out;
         }
 
+        /*
+         * @param1 options : what the caller is supplying as options
+         * @param2 defaults : the method defaults - if no options are provided
+         *
+         * @return settings - options merged with defaults
+         * missing keys are returned as NULL
+         * 
+         */
+
+        static function getSettings($options,$defaults) {
+            if(empty($options) && empty($defaults)) {
+                //nothing to do
+                return array();
+            }
+
+            if(is_array($options) && !empty($options)) {
+                // keys from options will override the ones
+                // in default as array
+                // @imp merge order will affect result!
+                $settings = array_merge($defaults,$options);
+            } else {
+                $settings = $defaults ;
+            }
+
+            //empty strings are equivalent to NULL
+            foreach($settings as $key => $value) {
+                if(Util::tryEmpty($value)) {
+                    $settings[$key] = NULL ;
+                }
+            }
+
+            return $settings ;
+        }
 
     }
 
