@@ -2,9 +2,11 @@
 
 namespace com\indigloo\ui\form {
 
-    use com\indigloo\Configuration as Config;
-    use com\indigloo\Logger as Logger;
-    use com\indigloo\Util as Util;
+    use \com\indigloo\Configuration as Config;
+    use \com\indigloo\Logger as Logger;
+    
+    use \com\indigloo\Util as Util;
+    use \com\indigloo\exception\UIException;
 
     class Handler {
 
@@ -36,7 +38,8 @@ namespace com\indigloo\ui\form {
 
         function addRule($name, $displayName, $rules) {
             if (!isset($this->post) || sizeof($this->post) == 0) {
-                trigger_error(' Form handler POST array not set', E_USER_ERROR);
+                $message = "Form handler POST array not set" ;
+                throw new UIException(array($message));
             }
 
             $value = NULL;
@@ -49,8 +52,9 @@ namespace com\indigloo\ui\form {
                 //this key is not found in post
                 // this represents a coding issue, not a form error
                 // if the element is on form then you get a key
-                $message = sprintf('Form POST data does not contain element :: %s',$name);
-                trigger_error($message, E_USER_ERROR);
+                $message = sprintf("Form POST data is missing required field {%s} ",$name);
+                throw new UIException(array($message));
+
             }
         }
 
