@@ -77,7 +77,10 @@ namespace com\indigloo\core {
                 $route = NULL ;
 
                 foreach($rules as $rule) {
-                    if(preg_match($this->patternize($rule["pattern"]),$path,$matches) != 0 ) {
+                    
+                    $count = preg_match($this->patternize($rule["pattern"]),$path,$matches);
+                    
+                    if($count !== FALSE && ($count != 0 )) {
                         //match happened 
                         $matches = $this->sanitizeMatches($matches);
                         $route = $this->createRoute($rule,$matches);
