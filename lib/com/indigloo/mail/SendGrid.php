@@ -23,6 +23,7 @@ namespace com\indigloo\mail {
         const SENDGRID_ERROR = 4 ;
         const UNKNOWN_ERROR = 5 ;
 
+
         /**
          *
          * @param $tos an array containing to addresses, is required.
@@ -37,6 +38,15 @@ namespace com\indigloo\mail {
          *
          */
         static function sendViaWeb($tos,$from,$fromName,$subject,$text,$html){
+
+            $mode = Config::getInstance()->get_value("sendgrid.mail.mode");
+            if(strcmp($mode,"production") != 0) {
+                $recipients = implode($tos, ",");
+                $message = sprintf("\n\n sendgrid mail to %s \n %s \n\n",$recipients,$text);
+                Logger::getInstance()->info($message);
+                return ;
+            }
+
             $login = Config::getInstance()->get_value("sendgrid.login");
             $password = Config::getInstance()->get_value("sendgrid.password");
 
