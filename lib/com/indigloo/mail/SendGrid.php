@@ -42,7 +42,7 @@ namespace com\indigloo\mail {
             $mode = Config::getInstance()->get_value("sendgrid.mail.mode");
             if(strcmp($mode,"production") != 0) {
                 $recipients = implode($tos, ",");
-                $message = sprintf("\n\n sendgrid mail to %s \n %s \n\n",$recipients,$text);
+                $message = sprintf("\n\n  **** mail to %s ****  \n %s \n\n",$recipients,$text);
                 Logger::getInstance()->info($message);
                 return ;
             }
