@@ -9,9 +9,13 @@ namespace com\indigloo\ui {
         private $pageNo ;
         private $qparams ;
         private $pageSize ;
+        private $maxPageNo ;
+        private $convert ;
 
         function __construct($qparams,$pageSize) {
             $this->pageNo = -1 ;
+            $this->maxPageNo = -1 ;
+            $this->convert = true ;
 
             if(!empty($qparams) && isset($qparams["gpage"])) {
                 $this->pageNo = $qparams["gpage"];
@@ -40,6 +44,14 @@ namespace com\indigloo\ui {
             $this->qparams = $qparams ;
             $this->pageSize = $pageSize ;
 
+        }
+
+        function setMaxPageNo($max) {
+            $this->maxPageNo = $max ;
+        }
+
+        function setBaseConvert($flag) {
+            $this->convert = $flag ;
         }
 
         function isHome() {
@@ -77,12 +89,16 @@ namespace com\indigloo\ui {
                 trigger_error("paginator is missing [start | direction ] parameter", E_USER_ERROR);
             }
 
-            $start = base_convert($start,36,10);
+            $start = ($this->convert) ? base_convert($start,36,10) : $start;
             return array("start" => $start , "direction" => $direction);
         }
 
         function hasNext($gNumRecords) {
             $flag = ($gNumRecords >= $this->pageSize) ? true : false ;
+            if($flag && $this->maxPageNo > 1 ) {
+                $flag = ($this->pageNo < $this->maxPageNo ) && flag ;
+            }
+
             return $flag ;
         }
 
@@ -109,7 +125,7 @@ namespace com\indigloo\ui {
 
             if($this->hasPrevious()){
 
-                $startId = base_convert($startId,10,36) ;
+                $startId = ($this->convert) ? base_convert($startId,10,36) : $startId ;
                 $bparams = array('gpb' => $startId, 'gpage' => $this->previousPage());
                 $q = array_merge($this->qparams,$bparams);
                 $ignore = array('gpa');
@@ -119,7 +135,7 @@ namespace com\indigloo\ui {
             }
 
             if($this->hasNext($gNumRecords)){
-                $endId = base_convert($endId,10,36) ;
+                $endId = ($this->convert) ? base_convert($endId,10,36) : $endId ;
                 $nparams = array('gpa' => $endId, 'gpage' => $this->nextPage()) ;
                 $q = array_merge($this->qparams,$nparams);
                 $ignore = array('gpb');
