@@ -3,6 +3,7 @@
 namespace com\indigloo\ui {
 
     Use \com\indigloo\Url as Url ;
+    Use \com\indigloo\Util as Util ;
 
     class Pagination {
 
@@ -27,6 +28,7 @@ namespace com\indigloo\ui {
                 // both gpa and gpb param in request
                 // we do not know what page you are asking for!
                 $this->pageNo = 1 ;
+                $qparams["gpa"] = 1 ;
 
             }
 
@@ -34,6 +36,7 @@ namespace com\indigloo\ui {
                 // both gpa and gpb param missing
                 // we do not know what page you are asking for!
                 $this->pageNo = 1 ;
+                $qparams["gpa"] = 1 ;
             }
 
             settype($this->pageNo,"integer");
@@ -82,10 +85,11 @@ namespace com\indigloo\ui {
                 $start = $this->qparams["gpb"] ;
             }
 
-            // both gpa and gpb are missing from request URL
-            // during paginator construction - this should be flagged
-            // as pageNo == 1 
-            if(empty($start) || empty($direction)) {
+            // if both gpa and gpb are missing from request URL
+            // then we flag that as pageNo == 1 in constructor
+            // so we should have both start and direction parameters here
+            // otherwise flag as error
+            if(Util::tryEmpty($start) || Util::tryEmpty($direction)) {
                 trigger_error("paginator is missing [start | direction ] parameter", E_USER_ERROR);
             }
 
