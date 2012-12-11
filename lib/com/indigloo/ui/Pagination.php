@@ -28,15 +28,12 @@ namespace com\indigloo\ui {
                 // both gpa and gpb param in request
                 // we do not know what page you are asking for!
                 $this->pageNo = 1 ;
-                $qparams["gpa"] = 1 ;
-
             }
 
             if(!array_key_exists("gpa",$qparams) && !array_key_exists("gpb",$qparams)){
                 // both gpa and gpb param missing
                 // we do not know what page you are asking for!
                 $this->pageNo = 1 ;
-                $qparams["gpa"] = 1 ;
             }
 
             settype($this->pageNo,"integer");
@@ -72,15 +69,15 @@ namespace com\indigloo\ui {
 
         function getDBParams() {
 
-            $start = NULL ;
-            $direction = NULL ;
+            $start = 1 ;
+            $direction = "after" ;
 
-            if(isset($this->qparams) && isset($this->qparams["gpa"])) {
+            if(isset($this->qparams["gpa"]) && (!Util::tryEmpty($this->qparams["gpa"]))) {
                 $direction = "after" ;
                 $start = $this->qparams["gpa"] ;
             }
 
-            if(isset($this->qparams) && isset($this->qparams["gpb"])) {
+            if(isset($this->qparams["gpb"]) && (!Util::tryEmpty($this->qparams["gpb"]))) {
                 $direction = "before" ;
                 $start = $this->qparams["gpb"] ;
             }
@@ -92,7 +89,7 @@ namespace com\indigloo\ui {
             if(Util::tryEmpty($start) || Util::tryEmpty($direction)) {
                 trigger_error("paginator is missing [start | direction ] parameter", E_USER_ERROR);
             }
-
+            
             $start = ($this->convert) ? base_convert($start,36,10) : $start;
             return array("start" => $start , "direction" => $direction);
         }
