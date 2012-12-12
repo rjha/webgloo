@@ -18,32 +18,24 @@ namespace com\indigloo\ui {
             $this->maxPageNo = -1 ;
             $this->convert = true ;
 
-            if(!empty($qparams) && isset($qparams["gpage"])) {
-                $this->pageNo = $qparams["gpage"];
-            }else {
+            if(!empty($qparams) && is_array($qparams)) {
+                if(isset($qparams["gpage"]) && !Util::tryEmpty($qparams["gpage"])) {
+                    $this->pageNo = $qparams["gpage"] ;
+                }
+
+            } else {
                 $this->pageNo = 1 ;
+                $qparams = array();
             }
 
-            if(array_key_exists("gpa",$qparams) && array_key_exists("gpb",$qparams)){
-                // both gpa and gpb param in request
-                // we do not know what page you are asking for!
-                $this->pageNo = 1 ;
-            }
+            settype($this->pageNo, "integer");
 
-            if(!array_key_exists("gpa",$qparams) && !array_key_exists("gpb",$qparams)){
-                // both gpa and gpb param missing
-                // we do not know what page you are asking for!
-                $this->pageNo = 1 ;
-            }
-
-            settype($this->pageNo,"integer");
             if(empty($this->pageNo) || ($this->pageNo <= 0)) {
                 $this->pageNo = 1 ;
             }
 
             $this->qparams = $qparams ;
             $this->pageSize = $pageSize ;
-
         }
 
         function setMaxPageNo($max) {
@@ -70,7 +62,7 @@ namespace com\indigloo\ui {
         function getDBParams() {
 
             $start = 1 ;
-            $direction = "after" ;
+            $direction = "before" ;
 
             if(isset($this->qparams["gpa"]) && (!Util::tryEmpty($this->qparams["gpa"]))) {
                 $direction = "after" ;
@@ -82,15 +74,13 @@ namespace com\indigloo\ui {
                 $start = $this->qparams["gpb"] ;
             }
 
-            // if both gpa and gpb are missing from request URL
-            // then we flag that as pageNo == 1 in constructor
-            // so we should have both start and direction parameters here
-            // otherwise flag as error
+            //this should not happen!
             if(Util::tryEmpty($start) || Util::tryEmpty($direction)) {
                 trigger_error("paginator is missing [start | direction ] parameter", E_USER_ERROR);
             }
             
             $start = ($this->convert) ? base_convert($start,36,10) : $start;
+            settype($start, "integer");
             return array("start" => $start , "direction" => $direction);
         }
 
@@ -118,8 +108,15 @@ namespace com\indigloo\ui {
 
         function render($homeURI,$startId,$endId,$gNumRecords) {
 
-            if(empty($startId) && empty($endId)) {
-                return "" ;
+            if(($this->pageNo == 1) &&   ($gNumRecords < $this->pageSize)) {
+                return ;
+            }
+
+            if(($this->pageNo > 1 ) && ($gNumRecords == 0)) {
+                printf("<ul class=\"pager\">");
+                printf("<li> <a href=\"%s\">Home</a> </li>",$homeURI);
+                printf("</ul>");
+                return ;
             }
 
             printf("<ul class=\"pager\">");
