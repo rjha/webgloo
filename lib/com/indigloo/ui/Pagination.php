@@ -112,13 +112,6 @@ namespace com\indigloo\ui {
                 return ;
             }
 
-            if(($this->pageNo > 1 ) && ($gNumRecords == 0)) {
-                printf("<ul class=\"pager\">");
-                printf("<li> <a href=\"%s\">Home</a> </li>",$homeURI);
-                printf("</ul>");
-                return ;
-            }
-
             printf("<ul class=\"pager\">");
 
             if($this->hasPrevious()){
