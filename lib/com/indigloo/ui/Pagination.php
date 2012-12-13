@@ -87,7 +87,7 @@ namespace com\indigloo\ui {
         function hasNext($gNumRecords) {
             $flag = ($gNumRecords >= $this->pageSize) ? true : false ;
             if($flag && $this->maxPageNo > 1 ) {
-                $flag = ($this->pageNo < $this->maxPageNo ) && flag ;
+                $flag = ($this->pageNo < $this->maxPageNo ) && $flag ;
             }
 
             return $flag ;
