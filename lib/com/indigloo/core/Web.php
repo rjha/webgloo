@@ -26,8 +26,7 @@ namespace com\indigloo\core {
         private $request;
         private $urls;
         static private $instance = NULL;
-        const CORE_URL_STACK = "core.url.stack";
-
+        
         private function __construct() {
             $this->request = new \com\indigloo\core\Request();
             $this->urls = array();

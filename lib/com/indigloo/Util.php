@@ -30,7 +30,7 @@ namespace com\indigloo {
             return $token;
         }
 
-        function getRandomString($length = 8) {
+        static function getRandomString($length = 8) {
             $characters = '123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $string = '';
 
@@ -187,6 +187,10 @@ namespace com\indigloo {
 
         static function contains($haystack, $needle) {
             return strpos($haystack, $needle) !== false;
+        }
+
+        static function icontains($haystack, $needle) {
+            return stripos($haystack, $needle) !== false;
         }
 
         static function convertBytesIntoKB($bytes) {
