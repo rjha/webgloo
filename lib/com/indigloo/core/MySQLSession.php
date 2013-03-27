@@ -10,6 +10,8 @@ namespace com\indigloo\core {
      * custom session handler to store PHP session data into mysql DB
      * we use a -select for update- row level lock
      *
+     * @todo : supply session store table name from outside
+     * 
      */
     class MySQLSession {
 
