@@ -10,7 +10,7 @@ namespace com\indigloo\core {
 
     class Request {
 
-        //parameters are the ones that are already part of REQUEST global variable
+        // parameters are the ones that are already part of REQUEST global variable
         // you cannot reset a request parameter. attributes is what the executing
         // script sets in request scope for housekeeping
         
@@ -20,10 +20,14 @@ namespace com\indigloo\core {
         function __construct() {
             $this->params = array();
             $this->attribs = array();
+
             //load server _GET and _POST parameters into request
             //request_order directive is set to GP
-            foreach($_REQUEST as $key => $value) {
-                $this->params[$key] = $value ;
+            
+            if(isset($_REQUEST)) {
+                foreach($_REQUEST as $key => $value) {
+                    $this->params[$key] = $value ;
+                }
             }
         }
 
