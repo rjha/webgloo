@@ -33,6 +33,7 @@ namespace com\indigloo\mysql{
 
             //throw exceptions
             $dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $dbh->setAttribute(\PDO::ATTR_AUTOCOMMIT, FALSE);
             return $dbh ;
         }
     }
