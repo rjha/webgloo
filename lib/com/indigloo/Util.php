@@ -30,7 +30,7 @@ namespace com\indigloo {
             return $token;
         }
 
-        function getRandomString($length = 8) {
+        static function getRandomString($length = 8) {
             $characters = '123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $string = '';
 
