@@ -3,6 +3,7 @@
 namespace com\indigloo\ui {
 
     Use \com\indigloo\Url as Url ;
+    Use \com\indigloo\Util as Util ;
 
     class Pagination {
 
@@ -17,33 +18,24 @@ namespace com\indigloo\ui {
             $this->maxPageNo = -1 ;
             $this->convert = true ;
 
-            if(!empty($qparams) && isset($qparams["gpage"])) {
-                $this->pageNo = $qparams["gpage"];
-            }else {
+            if(!empty($qparams) && is_array($qparams)) {
+                if(isset($qparams["gpage"]) && !Util::tryEmpty($qparams["gpage"])) {
+                    $this->pageNo = $qparams["gpage"] ;
+                }
+
+            } else {
                 $this->pageNo = 1 ;
+                $qparams = array();
             }
 
-            if(array_key_exists("gpa",$qparams) && array_key_exists("gpb",$qparams)){
-                // both gpa and gpb param in request
-                // we do not know what page you are asking for!
-                $this->pageNo = 1 ;
+            settype($this->pageNo, "integer");
 
-            }
-
-            if(!array_key_exists("gpa",$qparams) && !array_key_exists("gpb",$qparams)){
-                // both gpa and gpb param missing
-                // we do not know what page you are asking for!
-                $this->pageNo = 1 ;
-            }
-
-            settype($this->pageNo,"integer");
             if(empty($this->pageNo) || ($this->pageNo <= 0)) {
                 $this->pageNo = 1 ;
             }
 
             $this->qparams = $qparams ;
             $this->pageSize = $pageSize ;
-
         }
 
         function setMaxPageNo($max) {
@@ -69,34 +61,33 @@ namespace com\indigloo\ui {
 
         function getDBParams() {
 
-            $start = NULL ;
-            $direction = NULL ;
+            $start = 1 ;
+            $direction = "before" ;
 
-            if(isset($this->qparams) && isset($this->qparams["gpa"])) {
+            if(isset($this->qparams["gpa"]) && (!Util::tryEmpty($this->qparams["gpa"]))) {
                 $direction = "after" ;
                 $start = $this->qparams["gpa"] ;
             }
 
-            if(isset($this->qparams) && isset($this->qparams["gpb"])) {
+            if(isset($this->qparams["gpb"]) && (!Util::tryEmpty($this->qparams["gpb"]))) {
                 $direction = "before" ;
                 $start = $this->qparams["gpb"] ;
             }
 
-            // both gpa and gpb are missing from request URL
-            // during paginator construction - this should be flagged
-            // as pageNo == 1 
-            if(empty($start) || empty($direction)) {
+            //this should not happen!
+            if(Util::tryEmpty($start) || Util::tryEmpty($direction)) {
                 trigger_error("paginator is missing [start | direction ] parameter", E_USER_ERROR);
             }
-
+            
             $start = ($this->convert) ? base_convert($start,36,10) : $start;
+            settype($start, "integer");
             return array("start" => $start , "direction" => $direction);
         }
 
         function hasNext($gNumRecords) {
             $flag = ($gNumRecords >= $this->pageSize) ? true : false ;
             if($flag && $this->maxPageNo > 1 ) {
-                $flag = ($this->pageNo < $this->maxPageNo ) && flag ;
+                $flag = ($this->pageNo < $this->maxPageNo ) && $flag ;
             }
 
             return $flag ;
@@ -117,8 +108,8 @@ namespace com\indigloo\ui {
 
         function render($homeURI,$startId,$endId,$gNumRecords) {
 
-            if(empty($startId) && empty($endId)) {
-                return "" ;
+            if(($this->pageNo == 1) &&   ($gNumRecords < $this->pageSize)) {
+                return ;
             }
 
             printf("<ul class=\"pager\">");
@@ -131,7 +122,7 @@ namespace com\indigloo\ui {
                 $ignore = array('gpa');
 
                 $previousURI = Url::addQueryParameters($homeURI,$q,$ignore);
-                printf("<li> <a rel=\"prev\" href=\"%s\">&larr; Previous</a> </li>",$previousURI);
+                printf("<li> <a rel=\"nofollow prev\" href=\"%s\">&larr; Previous</a> </li>",$previousURI);
             }
 
             if($this->hasNext($gNumRecords)){
@@ -141,7 +132,7 @@ namespace com\indigloo\ui {
                 $ignore = array('gpb');
 
                 $nextURI = Url::addQueryParameters($homeURI,$q,$ignore);
-                printf("<li> <a rel=\"next\" href=\"%s\">Next &rarr;</a> </li>",$nextURI);
+                printf("<li> <a rel=\"nofollow next\" href=\"%s\">Next &rarr;</a> </li>",$nextURI);
             }
 
             printf("</ul>");

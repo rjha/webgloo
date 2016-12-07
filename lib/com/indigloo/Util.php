@@ -189,6 +189,10 @@ namespace com\indigloo {
             return strpos($haystack, $needle) !== false;
         }
 
+        static function icontains($haystack, $needle) {
+            return stripos($haystack, $needle) !== false;
+        }
+
         static function convertBytesIntoKB($bytes) {
             //divide bytes by 1024
             $kb = ceil(($bytes / 1024.00));
