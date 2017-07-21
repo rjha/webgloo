@@ -76,7 +76,7 @@ namespace com\indigloo\core {
             if(empty($data) || is_null($data)) {
                 //end Tx
                 $this->dbh->commit();
-                return ;
+                return TRUE;
             }
 
             $sql = " select count(session_id) as total from sc_php_session where session_id = :session_id" ;
