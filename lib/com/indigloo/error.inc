@@ -1,30 +1,7 @@
 <?php
 
-function send_mail($message) {
-
-    $flag = \com\indigloo\Configuration::getInstance()->get_value("send.error.email");
-    if(intval($flag) != 1 ) {
-        return ;
-    }
-
-    $to = \com\indigloo\Configuration::getInstance()->get_value("error.email.to");
-    if(empty($to)) {
-        return ;
-    }
-
-    $from = " support@3mik.com" ;
-    $tos = explode(",",$to);
-    $node = \com\indigloo\Configuration::getInstance()->get_value("node.name");
-
-    $fromName = "3mik.com error reporter";
-    $subject =" Error on 3mik node - ".$node ;
-    $text = $message ;
-    $html = $message ;
-    \com\indigloo\mail\SendGrid::sendViaWeb($tos,$from,$fromName,$subject,$text,$html);
-}
-
 function get_user_diagnostics() {
-    /* diagnostic info */
+    // diagnostic info
     $login = \com\indigloo\sc\auth\Login::tryLoginInSession();
     $name = (is_null($login)) ? "_N_" : sprintf("%s :: %s ",$login->id,$login->name) ;
 
@@ -42,8 +19,10 @@ function get_user_diagnostics() {
 function webgloo_error_handler($errno,$errstr,$file,$line) {
 
     // do nothing for silenced errors
-    if(error_reporting() == 0 ) { return true ; }
-
+    if(error_reporting() == 0 ) { 
+        return true ; 
+    }
+    
     switch($errno) {
         case E_STRICT :
             $message = sprintf("%s:%d [%d]  __STRICT__ %s",$file,$line,$errno,$errstr);
@@ -74,24 +53,24 @@ function webgloo_exception_handler($ex) {
 
     $errorPageUrl = "/site/error/500.php?message=system_exception" ;
     header('Location: '.$errorPageUrl);
-    send_mail($diagnostic.$message);
     exit(1) ;
 }
 
 function offline_exception_handler($ex) {
+    
     $message = $ex->getMessage();
     $message = sprintf("%s:%d  __OFFLINE__ %s \n",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
-    send_mail($message);
     exit(1) ;
+    
 }
 
 function webgloo_ajax_exception_handler($ex) {
-    /* user diagnostics */
+    
     $diagnostic = get_user_diagnostics();
-
     $message = $ex->getMessage();
+    
     $message = sprintf("%s:%d  __EXCEPTION__ %s \n",$ex->getFile(),$ex->getLine(),$message);
     \com\indigloo\Logger::getInstance()->error($message);
     \com\indigloo\Logger::getInstance()->backtrace($ex->getTrace());
@@ -99,10 +78,9 @@ function webgloo_ajax_exception_handler($ex) {
     //send nice message  to UI
     $ui_message =  "The server encountered an error. Please try after some time!";
     $error = array('code' => 500, 'message' => $ui_message);
-    $strJson =  json_encode($error) ;
-    echo $strJson ;
-    send_mail($diagnostic.$message);
+    echo json_encode($error) ;
     exit(1) ;
+    
 }
 
 // set default error handler. Without error_types mask our error_handler will be called 
