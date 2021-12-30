@@ -21,6 +21,7 @@ namespace com\indigloo {
         private $ini_array;
 
         static function getInstance() {
+
             if (self::$instance == NULL) {
                 self::$instance = new Configuration();
             }
@@ -29,22 +30,20 @@ namespace com\indigloo {
         }
 
         function __construct() {
-            //each application will read from its own config file
-            file_exists(APP_CONFIG_PATH) || die("unable to open application config.ini file ");
+
             // create config object
+            // each application will read from its own config file
+            file_exists(APP_CONFIG_PATH) || die("error opening config file ".APP_CONFIG_PATH);
             $this->ini_array = parse_ini_file(APP_CONFIG_PATH);
+
         }
 
-        function get_value($key,$default=NULL) {
+        function get_value($key, $default=NULL) {
 
-            if(array_key_exists($key, $this->ini_array)) {
-                return $this->ini_array[$key];
-            } else if(!empty($default)) {
-                return $default ;
-            } else {
-                return NULL ;
-            }
-
+            $value = array_key_exists($key, $this->ini_array) ? $this->ini_array[$key] : $default;
+            $value = empty($value) ? NULL : $value;
+            return $value;
+        
         }
 
         function __destruct() {
@@ -52,12 +51,11 @@ namespace com\indigloo {
         }
        
         function is_debug() {
-            $val = $this->ini_array['debug.mode'];
-            if (intval($val) == 1) {
-                return true;
-            } else {
-                return false;
-            }
+
+            $value = $this->ini_array['debug.mode'];
+            $value = (intval($value) == 1) ? true : false; 
+            return $value;
+
         }
 
         function log_level() {
@@ -71,7 +69,6 @@ namespace com\indigloo {
         function max_file_size() {
             return $this->ini_array['max.file.size'];
         }
-
         
     }
 
