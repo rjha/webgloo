@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace com\indigloo {
 
     use \com\indigloo\Configuration as Config ;
@@ -15,34 +13,43 @@ namespace com\indigloo {
      * default PHP behavior.
      *
      */
+     
     class Url {
-
-        static function base() {
-            $host = NULL ;
-            $sapi_type = php_sapi_name();
+        
+        static function getComponents() {
             
-            //running from cli sapi?
-            if ( (substr($sapi_type, 0, 3) == "cli") && !isset($_SERVER["HTTP_HOST"])) {
-                //read from config file
-                $host = Config::getInstance()->get_value("www.host.name");
-                if(empty($host)) {
-                    trigger_error("www.host.name key not found in config.", E_USER_ERROR);
-                }
-
-            } else {
-                $host = $_SERVER["HTTP_HOST"];
-            }
-
-            return 'http://'.$host ;
+            return array(
+                "host" => $_SERVER["HTTP_HOST"],
+                "scheme" => Url::scheme(),
+                "base" => self::base(),
+                "params" => self::getRequestQueryParams()
+            );
+            
         }
-
+        
+        static function base() {
+            $base = sprintf("%s://%s", self::scheme(), $_SERVER["HTTP_HOST"]);
+            return $base;
+        }
+        
+        static function scheme() {
+            
+            $scheme = "http" ;
+            if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+                $scheme = "https" ;
+            }
+            
+            return $scheme;
+        }
+        
         static function current() {
            
             if(!isset($_SERVER['REQUEST_URI'])) {
-                trigger_error("REQUEST_URI key is missing from _SERVER globals",E_USER_ERROR);
+                trigger_error("No REQUEST_URI key in SERVER GLOBAL", E_USER_ERROR);
             }
 
-            return $_SERVER['REQUEST_URI'] ;
+            return $_SERVER['REQUEST_URI'];
+            
         }
 
         static function getRemoteIp(){
@@ -56,8 +63,8 @@ namespace com\indigloo {
          * @return new URL
          *
          */
-        static function addQueryParameters($url, $params,$ignore=NULL) {
-            //existing params
+        static function addQueryParameters($url, $params, $ignore=NULL) {
+            // existing params
             $q = self::getQueryParams($url);
             //params values will replace the one in q
             $q2 = array_merge($q, $params);
@@ -72,6 +79,7 @@ namespace com\indigloo {
             $path = \parse_url($url, PHP_URL_PATH);
             $newUrl = self::createUrl($path, $q2, $fragment);
             return $newUrl;
+            
         }
 
         /*
@@ -108,12 +116,13 @@ namespace com\indigloo {
          *
          */
         static function getQueryParams($url) {
+            
             $query = \parse_url($url, PHP_URL_QUERY);
             $params = array();
             if (empty($query)) {
                 return $params;
             } else {
-                //PHP parse_url will return the part after ?
+                // PHP parse_url will return the part after ?
                 // for /q?arg1=v1&arg2=v2, we will get arg1=1v1&arg2=v2
                 $q = explode("&", $query);
                 foreach ($q as $kvp) {
@@ -126,6 +135,7 @@ namespace com\indigloo {
             }
 
             return $params;
+            
         }
 
         /*
@@ -191,7 +201,7 @@ namespace com\indigloo {
         }
 
         static function addHttp($link) {
-            $scheme = \parse_url($link,PHP_URL_SCHEME);
+            $scheme = \parse_url($link, PHP_URL_SCHEME);
             $link = empty($scheme) ? "http://".$link : $link ;
             return $link ;
         }
