@@ -10,17 +10,15 @@ namespace com\indigloo\util{
             }
 
             $name = trim($name);
-            if(strlen($name) == 0 ) {
-                return '';
-            }
+            $size = strlen($name);
 
             $buffer = '' ;
             $ch = '' ;
             $flag = false ;
 
             //first pass - collect alphanumeric and treat others as spaces
-            for($i = 0; $i < strlen($name) ; $i++ ){
-                $ch = $name{$i};
+            for($i = 0; $i < $size ; $i++ ){
+                $ch = $name[$i];
                 if(ctype_alnum($ch)) {
                     $buffer .= $ch ;
                     $flag = false ;
@@ -45,16 +43,14 @@ namespace com\indigloo\util{
             }
 
             $key = trim($key);
-            if(strlen($key) == 0 ) {
-                return '';
-            }
-             
+            $size = strlen($key);
+ 
             $buffer = '' ;
             $ch = '' ;
 
-            for($i = 0; $i < strlen($key) ; $i++ ){
+            for($i = 0; $i < $size ; $i++ ){
 
-                $ch = $key{$i};
+                $ch = $key[$i];
 
                 if($ch == '-') {
                     $buffer .= ' ' ;
