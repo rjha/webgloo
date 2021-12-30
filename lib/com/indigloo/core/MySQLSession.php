@@ -119,6 +119,9 @@ namespace com\indigloo\core {
             $stmt = $this->dbh->prepare($sql);
             $stmt->bindParam(":session_id",$sessionId, \PDO::PARAM_STR);
             $stmt->execute();
+
+            //end Tx
+            $this->dbh->commit();
             return TRUE ;
 
         }
@@ -139,6 +142,9 @@ namespace com\indigloo\core {
             $stmt = $this->dbh->prepare($sql);
             $stmt->bindParam(":age",$age, \PDO::PARAM_INT);
             $stmt->execute();
+            
+            //end Tx
+            $this->dbh->commit();
             return TRUE ;
         }
 
