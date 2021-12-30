@@ -11,7 +11,7 @@ namespace com\indigloo {
             $i = 0 ; 
 
             while($i < strlen($content)){
-                $ch = $content{$i} ;
+                $ch = $content[$i] ;
 
                 if($ch == '~' ) { 
                     if($open) {
@@ -20,7 +20,7 @@ namespace com\indigloo {
                         $open = !$open ;
                     }else {
                         //not open
-                        if($content{$i+1} == '~' ) { 
+                        if($content[$i+1] == '~' ) { 
                             //double tilde case
                             $buffer .= '<?php echo ';
                             //advance pointer
